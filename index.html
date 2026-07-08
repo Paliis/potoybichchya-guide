@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Потойбіччя — економіка гостя (простими словами)</title>
+  <style>
+    :root {
+      --bg: #f4f6f9; --card: #fff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+      --accent: #1d4ed8; --accent-soft: #eff6ff; --pos: #15803d; --neg: #b91c1c; --warn: #b45309;
+      --formula-bg: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 15px; }
+    header { background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); color: #fff; padding: 1.25rem 1rem 0; }
+    header h1 { margin: 0 0 .3rem; font-size: 1.35rem; font-weight: 700; }
+    header p { margin: 0 0 .9rem; opacity: .92; font-size: .9rem; max-width: 44rem; }
+    .wrap { max-width: 940px; margin: 0 auto; padding: 0 1rem 3rem; }
+    .tabs { display: flex; flex-wrap: wrap; gap: .25rem; }
+    .tab-btn {
+      border: none; background: rgba(255,255,255,.14); color: #fff;
+      padding: .5rem .75rem; border-radius: 8px 8px 0 0; cursor: pointer; font-size: .78rem; font-weight: 600;
+    }
+    .tab-btn.active { background: var(--bg); color: var(--accent); }
+    .tab-btn:hover:not(.active) { background: rgba(255,255,255,.25); }
+    .panel { display: none; padding-top: 1rem; }
+    .panel.active { display: block; }
+    section {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.15rem 1.3rem; margin-bottom: .9rem; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    h2 { margin: 0 0 .65rem; font-size: 1.05rem; color: var(--accent); }
+    h3 { margin: .85rem 0 .4rem; font-size: .92rem; color: var(--text); }
+    .hint {
+      background: var(--accent-soft); border-left: 4px solid var(--accent);
+      padding: .7rem .95rem; border-radius: 0 8px 8px 0; font-size: .86rem; margin-bottom: .85rem;
+    }
+    .hint-warn { background: #fffbeb; border-color: var(--warn); }
+    .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+    .steps li {
+      counter-increment: step; padding: .75rem 1rem .75rem 2.8rem; position: relative;
+      background: #f8fafc; border-radius: 8px; margin-bottom: .45rem; border: 1px solid var(--border); font-size: .9rem;
+    }
+    .steps li::before {
+      content: counter(step); position: absolute; left: .75rem; top: .75rem;
+      width: 1.5rem; height: 1.5rem; background: var(--accent); color: #fff;
+      border-radius: 50%; text-align: center; line-height: 1.5rem; font-size: .75rem; font-weight: 700;
+    }
+    /* Formula blocks */
+    .formula {
+      background: var(--formula-bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: .9rem 1rem; margin: .65rem 0;
+    }
+    .formula-title { font-weight: 700; font-size: .88rem; margin-bottom: .35rem; }
+    .formula-eq {
+      font-family: Consolas, "Courier New", monospace; font-size: .95rem;
+      background: #fff; border: 1px dashed #cbd5e1; border-radius: 6px;
+      padding: .5rem .75rem; margin: .4rem 0; word-break: break-word;
+    }
+    .formula-eq strong { color: var(--accent); }
+    .formula-parts { width: 100%; border-collapse: collapse; font-size: .8rem; margin-top: .5rem; }
+    .formula-parts th, .formula-parts td { border: 1px solid var(--border); padding: .4rem .55rem; text-align: left; vertical-align: top; }
+    .formula-parts th { background: #e2e8f0; font-weight: 600; }
+    .formula-parts .src { color: var(--muted); font-size: .75rem; }
+    .formula-parts .val { text-align: right; font-weight: 600; white-space: nowrap; }
+    /* Funnel */
+    .funnel-step { margin-bottom: .75rem; }
+    .funnel-head { display: flex; justify-content: space-between; gap: .5rem; font-size: .88rem; }
+    .funnel-bar { height: 24px; background: #93c5fd; border-radius: 4px; margin: .3rem 0; min-width: 3%; }
+    .funnel-bar.accent { background: var(--accent); }
+    .funnel-sub { font-size: .78rem; color: var(--muted); }
+    /* Cards */
+    .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .85rem; }
+    @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
+    .compare-card { border-radius: 10px; padding: .9rem 1rem; border: 1px solid var(--border); }
+    .compare-card.old { background: #fff7ed; border-color: #fed7aa; }
+    .compare-card.new { background: #f0fdf4; border-color: #bbf7d0; }
+    .compare-card.neutral { background: #f8fafc; border-color: var(--border); }
+    .compare-card.warn { background: #fffbeb; border-color: #fde68a; }
+    .big-num { font-size: 1.65rem; font-weight: 800; margin: .2rem 0; }
+    .tag { font-size: .7rem; padding: .12rem .4rem; border-radius: 4px; background: #e2e8f0; font-weight: 600; display: inline-block; }
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: .65rem; }
+    .kpi { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: .65rem; }
+    .kpi .lbl { font-size: .68rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    .kpi .val { font-size: 1.05rem; font-weight: 700; margin-top: .15rem; }
+    .seg-card { border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; margin-bottom: .7rem; }
+    .seg-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem; margin-bottom: .45rem; }
+    table.simple { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    table.simple th, table.simple td { border: 1px solid var(--border); padding: .45rem .55rem; }
+    table.simple th { background: #f1f5f9; }
+    td.num, th.num { text-align: right; }
+.status-ok { color: #15803d; font-weight: 700; }
+.status-warn { color: #b45309; font-weight: 700; }
+.status-bad { color: #b91c1c; font-weight: 700; }
+    .pos { color: var(--pos); font-weight: 700; }
+    .neg { color: var(--neg); font-weight: 700; }
+    details { margin: .5rem 0; font-size: .86rem; }
+    details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+    .glossary dt { font-weight: 700; margin-top: .5rem; }
+    .glossary dd { margin: .15rem 0 .5rem 1rem; color: var(--muted); font-size: .88rem; }
+    .footer { text-align: center; color: var(--muted); font-size: .76rem; margin-top: 1.25rem; }
+    code { background: #f1f5f9; padding: .08rem .3rem; border-radius: 3px; font-size: .82em; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding-bottom:0">
+    <h1>Економіка гостя — простими словами</h1>
+    <p>Скільки людей проходить воронку, що отримують після культу, скільки це коштує Silpo — з формулами і підписами «звідки цифра».</p>
+    <nav class="tabs" id="tabs">
+      <button type="button" class="tab-btn active" data-tab="start">1. Почни тут</button>
+      <button type="button" class="tab-btn" data-tab="funnel">2. Скільки людей</button>
+      <button type="button" class="tab-btn" data-tab="welcome">3. Стартовий подарунок</button>
+      <button type="button" class="tab-btn" data-tab="formulas">4. Як рахуємо гроші</button>
+      <button type="button" class="tab-btn" data-tab="segments">5. Сегменти гостей</button>
+      <button type="button" class="tab-btn" data-tab="total">6. Підсумок</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="panel active" id="panel-start">
+    <section>
+      <h2>Три слова, які треба знати</h2>
+      <dl class="glossary" id="glossary-start"></dl>
+    </section>
+    <section>
+      <h2>Що показує ця сторінка</h2>
+      <ol class="steps">
+        <li><strong>Скільки людей</strong> — від 2,5 млн з Власним рахунком до тих, хто реально грає.</li>
+        <li><strong>Стартовий подарунок</strong> — що даємо після вибору культу.</li>
+        <li><strong>Типи гостей</strong> — 253 тис. у культi діляться на автопілот / кежуал / активний / супер.</li>
+        <li><strong>Формули</strong> — кожна цифра з підписом, звідки взята.</li>
+      </ol>
+      <div class="hint">
+        Показуємо одну логіку: що гість отримує, скільки це коштує Silpo і скільки ББ гість може списати в грі.
+        Там, де число є припущенням для сценарію, це підписано.
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" id="panel-funnel">
+    <section>
+      <h2>Скільки людей на кожному кроці</h2>
+      <p class="hint" style="margin-top:0">Кожен наступний крок = попередній × відсоток переходу.</p>
+      <div id="funnel-viz"></div>
+    </section>
+    <section>
+      <h2>Формули воронки</h2>
+      <div id="funnel-formulas"></div>
+    </section>
+  </div>
+
+  <div class="panel" id="panel-welcome">
+    <section>
+      <h2>Стартовий подарунок після культу</h2>
+      <p class="hint" style="margin-top:0">
+        Стартовий подарунок у балансі — це СП культ 5% + гардероб + 50 Заб.
+        Гроші для Silpo зʼявляються тільки коли СП реально використали в покупці.
+      </p>
+      <div class="compare" id="welcome-scenarios"></div>
+      <div id="welcome-formula"></div>
+      <div id="cult-spend-reference"></div>
+      <h3>Що входить у набір (0 грн — не рахуємо)</h3>
+      <div id="welcome-zero"></div>
+    </section>
+  </div>
+
+  <div class="panel" id="panel-formulas">
+    <section>
+      <h2>Звідки беруться грошові рядки</h2>
+      <p class="hint" style="margin-top:0">Це довідник формул. На вкладці «Типи гостей» — ті самі формули для кожного сегменту, але вже з конкретними числами.</p>
+      <div id="bb-economics"></div>
+      <div id="retail-formulas"></div>
+      <div id="sp-template"></div>
+      <div id="burn-template"></div>
+      <div id="paid-actions-template"></div>
+      <div id="gross-template"></div>
+    </section>
+  </div>
+
+  <div class="panel" id="panel-segments">
+    <section>
+      <h2>Сегменти гостей після культу (місячна економіка)</h2>
+      <p class="hint" style="margin-top:0">
+        <strong>Винагороди</strong> = скільки Silpo віддала гостю.
+        <strong>Списані ББ</strong> = скільки гість витратив ББ у грі.
+        <strong>Різниця</strong> = списані ББ мінус вартість винагород.
+        <br><strong>Горизонт:</strong> стартовий подарунок показуємо окремо як разову витрату. Поточні винагороди й списані ББ — на 1 місяць.
+        <br><strong>Синхронізація з воронкою:</strong> S2 + S3 = F5 «активно грають» = 65 812 гостей.
+        <br><strong>Назви сегментів:</strong> S0 «Автопілот» — наш робочий неактивний сегмент; S1–S3 синхронізовані з балансом гри: Casual / Активний / Хардкор.
+      </p>
+      <div id="segments-viz"></div>
+    </section>
+  </div>
+
+  <div class="panel" id="panel-total">
+    <section>
+      <h2>Підсумок на всю когорту в культi</h2>
+      <p>Усі, хто <strong>обрав культ</strong> на старті сезону — <span id="f4-count">—</span> гостей. Стартовий подарунок — разово; поточна економіка — за 1 місяць.</p>
+      <div class="kpi-row" id="kpi-row"></div>
+      <div id="segment-summary"></div>
+      <div id="pool-formulas"></div>
+      <h3>Одним реченням</h3>
+      <p id="one-liner" style="color:var(--muted);font-size:.92rem"></p>
+    </section>
+  </div>
+
+  <p class="footer" id="footer-meta"></p>
+</main>
+
+<script>
+const DATA = {"meta":{"layer":"balance_guest","balance_doc":"docs/product/game-balance-v10.md","season_months_pnl":3.0,"f4_cult_guests":253125},"cult_entry_pack":{"total_uah":12.0,"items":[{"id":"sp_cult_5pct","kind":"sp_retail","uah":12.0},{"id":"cult_garderobe","kind":"cosmetic","uah":0.0},{"id":"zbb_day1","kind":"zbb","uah":0.0}],"legacy_assumptions_welcome_uah":38.25},"segments":{"S0":{"label":"Автопілот","pct_f4":0.394667,"archetype":"f2p_real","mmmm_per_day":814,"play_frequency_factor":0.0,"pattern_power_factor":0.5053,"effective_activity_factor":0.0,"gross_season_uah":12.0,"burn_season_uah":0.0,"delta_season_uah":-12.0,"pocket_balance":["стартовий набір","без поточної активності"]},"S1":{"label":"Casual","pct_f4":0.345333,"archetype":"f2p_real","mmmm_per_day":814,"play_frequency_factor":0.55,"pattern_power_factor":0.5053,"effective_activity_factor":0.2779,"gross_season_uah":52.02,"burn_season_uah":17.09,"delta_season_uah":-34.93,"pocket_balance":["темп Casual із балансу гри","періодична активність"]},"S2":{"label":"Активний","pct_f4":0.156,"archetype":"f2p_opt","mmmm_per_day":1201,"play_frequency_factor":1.0,"pattern_power_factor":0.7455,"effective_activity_factor":0.7455,"gross_season_uah":226.7,"burn_season_uah":45.85,"delta_season_uah":-180.86,"pocket_balance":["темп Активний із балансу гри","разом із S3 входить у F5"]},"S3":{"label":"Хардкор","pct_f4":0.104,"archetype":"p2w_real","mmmm_per_day":1611,"play_frequency_factor":1.0,"pattern_power_factor":1.0,"effective_activity_factor":1.0,"gross_season_uah":348.0,"burn_season_uah":61.5,"delta_season_uah":-286.5,"pocket_balance":["темп Хардкор із балансу гри","разом із S2 входить у F5"]}},"pools":{"f4_guests":253125,"gross_pool_season_uah":23858911.0,"burn_pool_season_uah":4923368.0,"delta_pool_season_uah":-18935544.0,"welcome_pool_one_time_uah":3037500.0},"funnel_stages":[{"label":"F0","name":"Усі з Власним рахунком","guests":2500000,"unit":"—","note":"Ще не в грі"},{"label":"F1","name":"Відкрили Потойбіччя","guests":375000,"unit":"—","note":"Без подарунків"},{"label":"F3","name":"Пройшли старт (персонаж)","guests":281250,"unit":"0 грн","note":"Економіка не стартує"},{"label":"F4","name":"Обрали культ + подарунок","guests":253125,"unit":"12 грн*","note":"Баланс: СП 5%. Старий шар: 38 грн"},{"label":"F5","name":"Реально грають","guests":65812,"unit":"див. типи","note":"S2+S3 у типах гостей"}],"formulas":{"welcome":{"result_uah":12.0,"formula":"1200 × 5% × 20% = 12 грн","scenarios":[{"label":"База за бенчем: 20%","per_guest_uah":12.0,"effective_per_f4_uah":12.0,"pool_uah":3037500.0,"formula":"253 125 гостей × 1200 грн × 5% × 20%","note":"1200 грн і підтверджена з аналітиками конверсія використання СП ~20% на всіх F4."},{"label":"Обережніше: 15% використання","per_guest_uah":9.0,"effective_per_f4_uah":9.0,"pool_uah":2278125.0,"formula":"253 125 гостей × 1200 грн × 5% × 15%","note":"Той самий чек 1200 грн, але нижча частка реального використання СП."},{"label":"Менший чек: 600 грн","per_guest_uah":6.0,"effective_per_f4_uah":6.0,"pool_uah":1518750.0,"formula":"253 125 гостей × 600 грн × 5% × 20%","note":"Якщо стартова покупка у категорії культу ближча до 600 грн, а не 1200 грн."},{"label":"Cost тільки на активних F5","per_guest_uah":12.0,"effective_per_f4_uah":3.12,"pool_uah":789744.0,"formula":"65 812 гостей × 1200 грн × 5% × 20%","note":"СП видали всім F4, але реальну вартість дають тільки ті, хто активно грає і скористався."}],"cult_category_spend_reference":{"title":"Перевірка 1200 грн через Excel по культових категоріях","source":"СП для Потойбіччя.xlsx · лист Сosts estimates","formula":"ср. чек улюбленої категорії × частота за 2 тижні × 2 = витрати / міс","summary":{"min_uah":627,"median_uah":1220,"avg_uah":1479,"max_uah":2830},"rows":[{"cult":"Пивопивці","avg_check_uah":259,"freq_2w":3.08,"monthly_uah":1594},{"cult":"Міцний алкоголь","avg_check_uah":705,"freq_2w":1.74,"monthly_uah":2461},{"cult":"Хліб / випічка","avg_check_uah":121,"freq_2w":2.6,"monthly_uah":627},{"cult":"Бургери / кулінарія","avg_check_uah":244,"freq_2w":3.01,"monthly_uah":1469},{"cult":"Кава","avg_check_uah":250,"freq_2w":2.44,"monthly_uah":1220},{"cult":"Ігристе","avg_check_uah":685,"freq_2w":2.07,"monthly_uah":2830},{"cult":"Авокадо / овочі-фрукти","avg_check_uah":263,"freq_2w":2.19,"monthly_uah":1154},{"cult":"Морепродукти / риба","avg_check_uah":390,"freq_2w":1.47,"monthly_uah":1148},{"cult":"Солодкоїжки","avg_check_uah":253,"freq_2w":1.61,"monthly_uah":811}],"takeaway":"1200 грн близько до медіани Excel-розрахунку (≈1220 грн/міс), але для детальної моделі краще рахувати окремо по культах."},"inputs":[{"id":"avg_purchase","label":"Середні покупки в категорії культу","value":"1200 грн/міс","source":"assumptions.yaml offers.x2_bb_cult_category.avg_monthly_spend_cult_uah","note":"Оцінка: якщо гість використає знижку на покупку у своїй категорії"},{"id":"discount","label":"Знижка стартової СПшки","value":"5%","source":"баланс v10 §10 — сюжет «Онбординг»","note":"Культова СПшка 5%"},{"id":"redemption","label":"Частка тих, хто реально скористається","value":"20%","source":"сценарне налаштування","note":"Оцінка для сценарію, потрібно підтвердити після запуску"}],"zero_cost":[{"label":"Гардероб культу","source":"баланс v10 §6 — косметика"},{"label":"50 Заб (день 1)","source":"баланс v10 §14 — ігрова валюта, 0 грн для Silpo"}],"legacy":{"result_uah":38.25,"formula":"45 грн × 85% = 38 грн","note":"Стара чернетка для порівняння"}},"bb_economics":{"rule":"1 ББ = 1 грн","formula":"Єдине правило в усіх формулах економіки гостя","source":"game-balance-v10 §1"},"funnel_steps":[{"label":"F0","name":"Усі гості Власного рахунку","guests":2500000,"prior_guests":2500000,"retention_pct":"100%","formula":"2,500,000 × 100% = 2,500,000","source":"tools/adequacy_check.py VR_GUESTS_CAP","note":""},{"label":"F1","name":"Зайшли в Потойбіччя","guests":375000,"prior_guests":2500000,"retention_pct":"15%","formula":"2,500,000 × 15% = 375,000","source":"audience_model click_peak; v3 launch ~15%; сезонно 7–12%","note":"v2: install (18%) вбудований у цей % — no separate step"},{"label":"F3","name":"Пройшли стартовий екран","guests":281250,"prior_guests":375000,"retention_pct":"75%","formula":"375,000 × 75% = 281,250","source":"draft — v2 spreadsheet; YK proxy ~79%; потрібна аналітика онбордингу","note":"Продукт 2026-06: крок 1 UX. Unit/P&L = 0. % draft"},{"label":"F4","name":"У культі + стартова пропозиція","guests":253125,"prior_guests":281250,"retention_pct":"90%","formula":"281,250 × 90% = 253,125","source":"draft — v2 spreadsheet; продуктове рішення, бенч відсутній","note":"Продукт 2026-06: крок 2 UX + єдина економіка онбордингу. YK in-game fix → тут"},{"label":"F5","name":"Активно грають","guests":65812,"prior_guests":253125,"retention_pct":"26%","formula":"253,125 × 26% = 65,812","source":"hypothesis — підібрано під цільову цифру активних; потрібна аналітика","note":"MAU економічний = цей рядок + залишились. MAU охоплення = f3_onboarding + залишились."}],"retail_monthly":{},"sp_ongoing":{"label":"Ігрові знижки за сезон","template":"96 грн/міс × 3 міс × наскільки часто грає × (знижок за сезон ÷ 6)","anchor_uah_per_month":96.0,"anchor_source":"баланс v10 §10 — очікуваний збиток при повному патерні СП","months":3.0,"expected_sp_f2p":6.0},"burn_template":{"label":"Скільки ББ гість списує в грі","template":"доступні ББ/міс × частка, яку витрачає в грі × наскільки активно грає","balance_part":"доступні ББ/міс × частка, яку витрачає в грі × 1 грн/ББ","balance_part_source":"assumptions.yaml incremental_revenue.player_monthly_rto_uah + offers.x2_bb_cult_category; сценарні частки — balance-guest-layer.yaml","liability_source":"1 ББ = 1 грн (баланс v10 §1)","explanation":["Доступні ББ/міс тепер рахуємо з покупок: 3500 грн × 1% = 35 ББ базово.","Подвоєння по культ-категорії додає ще: 1200 грн × 1% = +12 ББ.","Разом нових ББ за місяць: 35 + 12 = 47 ББ.","Стартовий запас: 3 міс попереднього базового кешбеку = 105 ББ, розподіляємо на сезон 3 міс = +35 ББ/міс.","Коефіцієнт акцій/підписки зараз 1.0: не додає підвищення. Його можна крутити як сценарій.","25% — сценарна частка доступних ББ, яку гість витрачає в грі.","Платні дії у внутрішньоігровому магазині показуємо окремо: це попит, а не додаткове джерело ББ."],"benchmark_check":[{"metric":"82 ББ/міс доступно","status":"пораховано з моделі","benchmark":"47 ББ/міс з поточних покупок + 35 ББ/міс зі стартового запасу.","decision":"Використовувати замість ручних 500 ББ; стартовий запас лишається сценарним через N місяців."},{"metric":"25% балансу витрачається","status":"частково адекватно, але не підтверджено","benchmark":"X5: топ-10% активних спалюють ~50% балів; для ширших сегментів 25% виглядає як обережніший сценарій.","decision":"Показувати як сценарій, не як факт."}]},"paid_actions_template":{"label":"Платні дії за реальні гроші","template":"F5 активні гості × частка платників із P&L × чек платника у внутрішньоігровому магазині","explanation":["Платні дії — це тільки реальні гроші / IAP у внутрішньоігровому магазині.","Це НЕ списання ББ і НЕ магазин Сільпо.","Сюди входять покупки за картку: бусти, квитки, лутбокси, стартові паки, бандли, скіни.","P&L v3 для цього має окремий рядок IAP: 2,5% платників і приблизно 116 грн/міс на платника."],"inputs":[{"label":"Що продаємо за реальні гроші","value":"цифрові товари в грі","source":"баланс гри","note":"Без ББ-цін у цьому блоці: тут тільки покупки за картку / IAP."},{"label":"P&L база реальних оплат","value":"2 5% від F5 ≈ 1 645 платників/міс","source":"P&L v3","note":"Це окремий IAP-шар, не ББ-списання."},{"label":"P&L чек платника","value":"≈116 грн/міс","source":"P&L v3","note":"SKU mix cockpit: скіни / паки / бустери."},{"label":"Діапазон для sensitivity","value":"1,5–5% платників","source":"P&L cockpit","note":"2,5% = база; 4–5% = aggressive monetization, не підтверджено Silpo-бенчем."},{"label":"Активна база для платних дій","value":"S2+S3 = 65 812 гостей","source":"модель воронки","note":"S2 15.6% + S3 10.4% від F4."}]},"gross_template":{"label":"Скільки коштують винагороди Silpo за сезон","template":"стартовий подарунок + ігрові знижки з балансу гри"},"segments":{"S0":{"cult_entry_uah":12.0,"sp_season_uah":0.0,"sp_month_uah":0.0,"sp_parts":{"anchor_uah_per_month":96.0,"months":3.0,"activity_factor":0.0,"play_frequency_factor":0.0,"pattern_power_factor":0.505276225946617,"effective_activity_factor":0.0,"reference_mmmm_per_day":1611.0,"sp_count_season":1.0,"sp_expected_f2p":6.0,"count_factor":0.1667},"bridge_month_uah":0.0,"bridge_parts":{"x2":0.0,"sp_cult":0.0,"sp_stm":0.0,"level":0.0},"bridge_season_uah":0.0,"gross_season_uah":12.0,"burn_month_uah":0.0,"burn_season_uah":0.0,"burn_parts":{"avg_bb_balance_month":82.0,"earned_bb_month":{"total_spend_uah":3500.0,"cult_spend_uah":1200.0,"accrual_rate":0.01,"x2_extra_pct":1.0,"base_bb_month":35.0,"x2_extra_bb_month":12.0,"current_earned_bb_month":47.0,"accrual_boost_multiplier":1.0,"boosted_earned_bb_month":47.0,"opening_saved_bb_months":3.0,"opening_saved_bb":105.0,"opening_saved_bb_month":35.0,"available_bb_month":82.0},"use_earned_bb_as_balance":true,"share_balance_burned":0.25,"liability_bb_uah":1.0,"paid_attempts_month":0.0,"bb_per_attempt":20.0,"planned_paid_bb_month":0.0,"planned_paid_uah_month":0.0,"burned_bb_after_activity_month":0.0,"planned_paid_bb_after_activity_month":0.0,"unfunded_paid_bb_after_activity_month":0.0,"activity_factor":0.0,"play_frequency_factor":0.0,"pattern_power_factor":0.505276225946617,"effective_activity_factor":0.0,"reference_mmmm_per_day":1611.0},"label":"Автопілот","pct_f4":0.394667,"archetype":"f2p_real","mmmm_per_day":814,"activity_factor":0.0,"play_frequency_factor":0.0,"pattern_power_factor":0.505276225946617,"activity_label":"0% від S3","activity_source":"сценарне налаштування","activity_explanation":"Рахуємо як частоту гри (0%) × силу патерну відносно S3 (50.5276%). Разом: 0%.","retail_margin_month_uah":0.0,"retail_margin_formula":"(3145 × 10% × 14.2%) × 0.00 = 0.00 грн/міс","retail_margin_source":"P&L v3: чек 3145 грн/гравець/міс × приріст 10% × маржа 14,2%; кількість гостей — поточні S2+S3=F5","sp_formula":"96 × 3 × 0.00 × (1/6) = 0.0 грн","gross_formula":"12 + 0.0 = 12.0 грн","burn_formula":"(82×25%×1.0) × 0.00 × 3 міс = 0.0 грн","bb_extra_actions_gap_formula":"потреба: 0 додаткових дій/міс × 20 ББ × активність 0.00 = 0.0 ББ/міс; забезпечено списанням: 0.0 ББ/міс; не вистачає: 0.0 ББ/міс","earned_bb_formula":"3500×1% + 1200×1% + 35 стартових/міс = 82 ББ/міс","delta_uah":-12.0},"S1":{"cult_entry_uah":12.0,"sp_season_uah":40.02,"sp_month_uah":13.34,"sp_parts":{"anchor_uah_per_month":96.0,"months":3.0,"activity_factor":0.27790192427063937,"play_frequency_factor":0.55,"pattern_power_factor":0.505276225946617,"effective_activity_factor":0.27790192427063937,"reference_mmmm_per_day":1611.0,"sp_count_season":3.0,"sp_expected_f2p":6.0,"count_factor":0.5},"bridge_month_uah":0.0,"bridge_parts":{"x2":0.0,"sp_cult":0.0,"sp_stm":0.0,"level":0.0},"bridge_season_uah":0.0,"gross_season_uah":52.02,"burn_month_uah":5.7,"burn_season_uah":17.09,"burn_parts":{"avg_bb_balance_month":82.0,"earned_bb_month":{"total_spend_uah":3500.0,"cult_spend_uah":1200.0,"accrual_rate":0.01,"x2_extra_pct":1.0,"base_bb_month":35.0,"x2_extra_bb_month":12.0,"current_earned_bb_month":47.0,"accrual_boost_multiplier":1.0,"boosted_earned_bb_month":47.0,"opening_saved_bb_months":3.0,"opening_saved_bb":105.0,"opening_saved_bb_month":35.0,"available_bb_month":82.0},"use_earned_bb_as_balance":true,"share_balance_burned":0.25,"liability_bb_uah":1.0,"paid_attempts_month":2.0,"bb_per_attempt":20.0,"planned_paid_bb_month":40.0,"planned_paid_uah_month":40.0,"burned_bb_after_activity_month":5.696989447548107,"planned_paid_bb_after_activity_month":11.116076970825574,"unfunded_paid_bb_after_activity_month":5.419087523277467,"activity_factor":0.27790192427063937,"play_frequency_factor":0.55,"pattern_power_factor":0.505276225946617,"effective_activity_factor":0.27790192427063937,"reference_mmmm_per_day":1611.0},"label":"Casual","pct_f4":0.345333,"archetype":"f2p_real","mmmm_per_day":814,"activity_factor":0.27790192427063937,"play_frequency_factor":0.55,"pattern_power_factor":0.505276225946617,"activity_label":"27.7902% від S3","activity_source":"сценарне налаштування","activity_explanation":"Рахуємо як частоту гри (55%) × силу патерну відносно S3 (50.5276%). Разом: 27.7902%.","retail_margin_month_uah":0.0,"retail_margin_formula":"(3145 × 10% × 14.2%) × 0.00 = 0.00 грн/міс","retail_margin_source":"P&L v3: чек 3145 грн/гравець/міс × приріст 10% × маржа 14,2%; кількість гостей — поточні S2+S3=F5","sp_formula":"96 × 3 × 0.28 × (3/6) = 40.0 грн","gross_formula":"12 + 40.0 = 52.0 грн","burn_formula":"(82×25%×1.0) × 0.28 × 3 міс = 17.1 грн","bb_extra_actions_gap_formula":"потреба: 2 додаткових дій/міс × 20 ББ × активність 0.28 = 11.1 ББ/міс; забезпечено списанням: 5.7 ББ/міс; не вистачає: 5.4 ББ/міс","earned_bb_formula":"3500×1% + 1200×1% + 35 стартових/міс = 82 ББ/міс","delta_uah":-34.93},"S2":{"cult_entry_uah":12.0,"sp_season_uah":214.7,"sp_month_uah":71.57,"sp_parts":{"anchor_uah_per_month":96.0,"months":3.0,"activity_factor":0.7454996896337679,"play_frequency_factor":1.0,"pattern_power_factor":0.7454996896337679,"effective_activity_factor":0.7454996896337679,"reference_mmmm_per_day":1611.0,"sp_count_season":6.0,"sp_expected_f2p":6.0,"count_factor":1.0},"bridge_month_uah":0.0,"bridge_parts":{"x2":0.0,"sp_cult":0.0,"sp_stm":0.0,"level":0.0},"bridge_season_uah":0.0,"gross_season_uah":226.7,"burn_month_uah":15.28,"burn_season_uah":45.85,"burn_parts":{"avg_bb_balance_month":82.0,"earned_bb_month":{"total_spend_uah":3500.0,"cult_spend_uah":1200.0,"accrual_rate":0.01,"x2_extra_pct":1.0,"base_bb_month":35.0,"x2_extra_bb_month":12.0,"current_earned_bb_month":47.0,"accrual_boost_multiplier":1.0,"boosted_earned_bb_month":47.0,"opening_saved_bb_months":3.0,"opening_saved_bb":105.0,"opening_saved_bb_month":35.0,"available_bb_month":82.0},"use_earned_bb_as_balance":true,"share_balance_burned":0.25,"liability_bb_uah":1.0,"paid_attempts_month":6.0,"bb_per_attempt":20.0,"planned_paid_bb_month":120.0,"planned_paid_uah_month":120.0,"burned_bb_after_activity_month":15.282743637492242,"planned_paid_bb_after_activity_month":89.45996275605215,"unfunded_paid_bb_after_activity_month":74.1772191185599,"activity_factor":0.7454996896337679,"play_frequency_factor":1.0,"pattern_power_factor":0.7454996896337679,"effective_activity_factor":0.7454996896337679,"reference_mmmm_per_day":1611.0},"label":"Активний","pct_f4":0.156,"archetype":"f2p_opt","mmmm_per_day":1201,"activity_factor":0.7454996896337679,"play_frequency_factor":1.0,"pattern_power_factor":0.7454996896337679,"activity_label":"74.55% від S3","activity_source":"сценарне налаштування","activity_explanation":"Рахуємо як частоту гри (100%) × силу патерну відносно S3 (74.55%). Разом: 74.55%.","retail_margin_month_uah":33.29,"retail_margin_formula":"(3145 × 10% × 14.2%) × 0.75 = 33.29 грн/міс","retail_margin_source":"P&L v3: чек 3145 грн/гравець/міс × приріст 10% × маржа 14,2%; кількість гостей — поточні S2+S3=F5","sp_formula":"96 × 3 × 0.75 × (6/6) = 214.7 грн","gross_formula":"12 + 214.7 = 226.7 грн","burn_formula":"(82×25%×1.0) × 0.75 × 3 міс = 45.9 грн","bb_extra_actions_gap_formula":"потреба: 6 додаткових дій/міс × 20 ББ × активність 0.75 = 89.5 ББ/міс; забезпечено списанням: 15.3 ББ/міс; не вистачає: 74.2 ББ/міс","earned_bb_formula":"3500×1% + 1200×1% + 35 стартових/міс = 82 ББ/міс","delta_uah":-180.85},"S3":{"cult_entry_uah":12.0,"sp_season_uah":336.0,"sp_month_uah":112.0,"sp_parts":{"anchor_uah_per_month":96.0,"months":3.0,"activity_factor":1.0,"play_frequency_factor":1.0,"pattern_power_factor":1.0,"effective_activity_factor":1.0,"reference_mmmm_per_day":1611.0,"sp_count_season":7.0,"sp_expected_f2p":6.0,"count_factor":1.1667},"bridge_month_uah":0.0,"bridge_parts":{"x2":0.0,"sp_cult":0.0,"sp_stm":0.0,"level":0.0},"bridge_season_uah":0.0,"gross_season_uah":348.0,"burn_month_uah":20.5,"burn_season_uah":61.5,"burn_parts":{"avg_bb_balance_month":82.0,"earned_bb_month":{"total_spend_uah":3500.0,"cult_spend_uah":1200.0,"accrual_rate":0.01,"x2_extra_pct":1.0,"base_bb_month":35.0,"x2_extra_bb_month":12.0,"current_earned_bb_month":47.0,"accrual_boost_multiplier":1.0,"boosted_earned_bb_month":47.0,"opening_saved_bb_months":3.0,"opening_saved_bb":105.0,"opening_saved_bb_month":35.0,"available_bb_month":82.0},"use_earned_bb_as_balance":true,"share_balance_burned":0.25,"liability_bb_uah":1.0,"paid_attempts_month":10.0,"bb_per_attempt":20.0,"planned_paid_bb_month":200.0,"planned_paid_uah_month":200.0,"burned_bb_after_activity_month":20.5,"planned_paid_bb_after_activity_month":200.0,"unfunded_paid_bb_after_activity_month":179.5,"activity_factor":1.0,"play_frequency_factor":1.0,"pattern_power_factor":1.0,"effective_activity_factor":1.0,"reference_mmmm_per_day":1611.0},"label":"Хардкор","pct_f4":0.104,"archetype":"p2w_real","mmmm_per_day":1611,"activity_factor":1.0,"play_frequency_factor":1.0,"pattern_power_factor":1.0,"activity_label":"100% від S3","activity_source":"сценарне налаштування","activity_explanation":"Рахуємо як частоту гри (100%) × силу патерну відносно S3 (100%). Разом: 100%.","retail_margin_month_uah":44.66,"retail_margin_formula":"(3145 × 10% × 14.2%) × 1.00 = 44.66 грн/міс","retail_margin_source":"P&L v3: чек 3145 грн/гравець/міс × приріст 10% × маржа 14,2%; кількість гостей — поточні S2+S3=F5","sp_formula":"96 × 3 × 1.00 × (7/6) = 336.0 грн","gross_formula":"12 + 336.0 = 348.0 грн","burn_formula":"(82×25%×1.0) × 1.00 × 3 міс = 61.5 грн","bb_extra_actions_gap_formula":"потреба: 10 додаткових дій/міс × 20 ББ × активність 1.00 = 200.0 ББ/міс; забезпечено списанням: 20.5 ББ/міс; не вистачає: 179.5 ББ/міс","earned_bb_formula":"3500×1% + 1200×1% + 35 стартових/міс = 82 ББ/міс","delta_uah":-286.5}},"pools":{"welcome_pool":{"formula":"253,125 гостей × 12 грн","result_uah":3037500.0},"gross_pool":{"formula":"сума по сегментах: гості × % сегменту × вартість винагород за сезон","result_uah":23858911.0}},"pnl_reconcile":{"title":"Звірка з P&L v3: де розходиться","note":"Гід показує один balance-first сезон F4. P&L v3 — річна модель 2027. Для грубої звірки множимо гід на 4 сезони.","rows":[{"block":"Винагороди гостям","guide":"23.9 млн/сезон · 95.4 млн/рік","pnl":"15.0 млн/рік CVM-офери; 27.8 млн/рік весь CVM-блок","status":"Велика розбіжність","meaning":"Balance-first гід дорожчий за P&L offer budget. Потрібно або зменшити SP-нагороди/активність, або підняти P&L бюджет."},{"block":"Стартові подарунки","guide":"3.0 млн/сезон · 12.2 млн/рік","pnl":"5.6 млн/рік стартові CVM-офери","status":"Розбіжність","meaning":"У гіді стартовий подарунок множиться на кожен сезон F4; у P&L стартовий бюджет значно нижчий."},{"block":"Поточні ігрові винагороди","guide":"20.8 млн/сезон · 83.3 млн/рік","pnl":"9.4 млн/рік продовження CVM-оферів","status":"Велика розбіжність","meaning":"Якір балансу 96 грн/міс на активний патерн дає набагато більший пул, ніж закладено в P&L."},{"block":"Списані ББ у грі","guide":"4.9 млн/сезон · 19.7 млн/рік","pnl":"0 грн/MAU/міс додаткового BB revenue у baseline; IAP має окрему BB-частку","status":"Різна логіка","meaning":"Гід рахує списання ББ як зменшення зобовʼязання. P&L baseline майже не має окремого рядка BB-burn."},{"block":"Платні дії real money / IAP","guide":"не входить у core-винагороди; показано окремо як P&L шар","pnl":"2.7 млн/рік IAP","status":"Окремий шар","meaning":"Не треба змішувати з винагородами: це дохід від покупок у внутрішньоігровому магазині."},{"block":"Кошик Сільпо через СП","guide":"retail bridge прибрано з core-гайда","pnl":"20.8 млн/рік turnover, не P&L revenue","status":"Не порівнювати напряму","meaning":"Це приріст обороту/довідковий рядок, а не вартість винагород гостя."}]},"glossary":{"podarunky":"Вартість усіх винагород для гостя: знижки, ББ, СП та інші бонуси — у гривнях для Silpo","povernennia":"Скільки ББ гість списав у грі. Для економіки це зменшує зобов’язання Silpo за балами","balans":"Списані ББ мінус вартість винагород. Мінус = на цьому гості Silpo віддала більше, ніж він списав у грі"}}};
+
+function fmtN(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace('.0','') + ' млн';
+  if (n >= 1e3) return Math.round(n / 1000).toLocaleString('uk-UA') + ' тис.';
+  return Math.round(n).toLocaleString('uk-UA');
+}
+function fmtMoney(n) { return Math.round(n).toLocaleString('uk-UA') + ' грн'; }
+function fmtPct(p) { return Math.round(p * 100) + '%'; }
+
+function cleanSource(src) {
+  const s = String(src || '');
+  if (!s) return '';
+  if (s.includes('game-balance') || s.includes('баланс v10') || s.includes('баланс гри')) return 'баланс гри';
+  if (s.includes('avg_monthly_spend_cult_uah')) return 'P&L: середні покупки в категорії культу';
+  if (s.includes('bb_accrual_rate_on_spend')) return 'P&L: базовий кешбек ББ від покупок';
+  if (s.includes('extra_accrual_pct')) return 'P&L: правило подвоєння ББ';
+  if (s.includes('sp_cult.count_per_month')) return 'P&L: кількість культових знижок';
+  if (s.includes('sp_cult.avg_discount_cost_uah')) return 'P&L: середня вартість культової знижки';
+  if (s.includes('sp_cult.redemption_rate')) return 'P&L: частка використання культової знижки';
+  if (s.includes('sp_stm_line.redemptions_per_player_month')) return 'P&L: використання знижки лінійки Потойбіччя';
+  if (s.includes('sp_stm_line.avg_discount_cost_uah')) return 'P&L: середня вартість знижки лінійки';
+  if (s.includes('sp_stm_line.redemption_rate')) return 'P&L: частка використання знижки лінійки';
+  if (s.includes('level_reward.unit_cost_uah')) return 'P&L: вартість нагороди за рівень';
+  if (s.includes('level_reward.events_per_top_player_month')) return 'P&L: частота нагород для топ-гравця';
+  if (s.includes('player_monthly_rto_uah') && s.includes('offers.x2_bb_cult_category')) return 'P&L: покупки гостя + x2 ББ; сценарій: частка списання';
+  if (s.includes('player_monthly_rto_uah')) return 'P&L: середні покупки активного гостя';
+  if (s.includes('assumptions.yaml') || s.includes('offers.')) return 'P&L: вхідні припущення';
+  if (s.includes('balobonus')) return 'баланс гри / правило 1 ББ = 1 грн';
+  if (s.includes('balance-guest-layer') || s.includes('segments.*')) return 'сценарне налаштування';
+  if (s.includes('guest_funnel') || s.includes('audience_model') || s.includes('v2 spreadsheet')) return 'модель воронки';
+  if (s.includes('P&L') || s.includes('cockpit')) return 'P&L модель';
+  if (s.includes('balance_guest_layer')) return 'розрахунок цієї сторінки';
+  if (s.includes('Пакетик') || s.includes('YK') || s.includes('X5')) return 'бенч / приклад з ринку';
+  if (s === 'результат') return 'результат формули';
+  if (s === 'попередній крок') return 'попередній крок';
+  return s;
+}
+
+function renderFormulaBox(title, eq, inputs, note) {
+  let rows = (inputs || []).map(i =>
+  `<tr><td>${i.label}</td><td class="val">${i.value}</td><td class="src">${cleanSource(i.source)}${i.note ? '<br><em>' + i.note + '</em>' : ''}</td></tr>`
+  ).join('');
+  return `<div class="formula">
+    <div class="formula-title">${title}</div>
+    <div class="formula-eq">${eq}</div>
+    ${rows ? `<table class="formula-parts"><tr><th>Що</th><th>Значення</th><th>Пояснення</th></tr>${rows}</table>` : ''}
+    ${note ? `<p style="font-size:.8rem;color:var(--muted);margin:.4rem 0 0">${note}</p>` : ''}
+  </div>`;
+}
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+const F = DATA.formulas || {};
+const G = F.glossary || {};
+
+// Glossary
+const glossEl = document.getElementById('glossary-start');
+if (G.podarunky) {
+  glossEl.innerHTML = `
+    <dt>Винагороди</dt><dd>${G.podarunky}</dd>
+    <dt>Списані ББ у грі</dt><dd>${G.povernennia}</dd>
+    <dt>Різниця</dt><dd>${G.balans}</dd>`;
+}
+
+// Funnel viz
+const maxG = DATA.funnel_stages[0].guests;
+const funnelEl = document.getElementById('funnel-viz');
+DATA.funnel_stages.forEach((s, i) => {
+  const pct = Math.max(4, (s.guests / maxG) * 100);
+  const last = i === DATA.funnel_stages.length - 1;
+  funnelEl.innerHTML += `
+    <div class="funnel-step">
+      <div class="funnel-head"><strong>${s.name}</strong><span>${fmtN(s.guests)}</span></div>
+      <div class="funnel-bar ${last ? 'accent' : ''}" style="width:${pct}%"></div>
+      <div class="funnel-sub">${s.note || ''}</div>
+    </div>`;
+});
+
+// Funnel formulas
+const ffEl = document.getElementById('funnel-formulas');
+(F.funnel_steps || []).forEach(step => {
+  ffEl.innerHTML += renderFormulaBox(
+    `${step.label}: ${step.name}`,
+    step.formula,
+    [
+      { label: 'Було на попередньому кроці', value: fmtN(step.prior_guests), source: step.label === 'F0' ? 'стартова база гостей' : 'попередній крок' },
+      { label: 'Частка переходу', value: step.retention_pct, source: step.source, note: step.note },
+      { label: 'Стало', value: fmtN(step.guests), source: 'результат' },
+    ]
+  );
+});
+
+// Welcome
+const W = F.welcome || {};
+const welcomeScenariosEl = document.getElementById('welcome-scenarios');
+welcomeScenariosEl.innerHTML = (W.scenarios || []).map((sc, i) => {
+  const cls = i === 0 ? 'warn' : 'neutral';
+  return `<div class="compare-card ${cls}">
+    <span class="tag">${sc.label}</span>
+    <div class="big-num">${fmtMoney(sc.pool_uah)}</div>
+    <p style="margin:.2rem 0 .35rem"><strong>${sc.effective_per_f4_uah} грн</strong> у середньому на гостя F4</p>
+    <p style="margin:.2rem 0;color:var(--muted);font-size:.82rem">${sc.note}</p>
+    <p style="font-family:Consolas,'Courier New',monospace;font-size:.78rem;margin:.45rem 0 0">${sc.formula}</p>
+  </div>`;
+}).join('');
+document.getElementById('welcome-formula').innerHTML = renderFormulaBox(
+  'Поточна формула стартової СП',
+  W.formula || '',
+  W.inputs || []
+);
+const cultSpendRef = W.cult_category_spend_reference || {};
+if (cultSpendRef.rows?.length) {
+  const rows = cultSpendRef.rows.map(r => `<tr>
+    <td>${r.cult}</td>
+    <td class="val">${r.avg_check_uah} грн</td>
+    <td class="val">${r.freq_2w}</td>
+    <td class="val">${fmtMoney(r.monthly_uah)}</td>
+  </tr>`).join('');
+  const s = cultSpendRef.summary || {};
+  document.getElementById('cult-spend-reference').innerHTML = `<div class="formula">
+    <div class="formula-title">${cultSpendRef.title}</div>
+    <div class="formula-eq">${cultSpendRef.formula}</div>
+    <p style="font-size:.84rem;color:var(--muted);margin:.25rem 0 .55rem">
+      Мін: ${fmtMoney(s.min_uah || 0)} · медіана: ${fmtMoney(s.median_uah || 0)} · середнє: ${fmtMoney(s.avg_uah || 0)} · максимум: ${fmtMoney(s.max_uah || 0)}.
+      ${cultSpendRef.takeaway || ''}
+    </p>
+    <table class="formula-parts">
+      <tr><th>Культ / категорія</th><th>Ср. чек</th><th>Частота / 2 тижні</th><th>Витрати / міс</th></tr>
+      ${rows}
+    </table>
+    <p style="font-size:.76rem;color:var(--muted);margin:.45rem 0 0">Джерело: ${cultSpendRef.source || ''}</p>
+  </div>`;
+}
+document.getElementById('welcome-zero').innerHTML = (W.zero_cost || []).map(z =>
+  `<p style="margin:.3rem 0;font-size:.88rem"><strong>${z.label}</strong> — 0 грн · <span class="src">${cleanSource(z.source)}</span></p>`
+).join('');
+
+// BB economics rule
+const bbE = F.bb_economics || {};
+if (bbE.rule) {
+  document.getElementById('bb-economics').innerHTML =
+    renderFormulaBox('Скільки коштує 1 бал', `<strong>${bbE.rule}</strong>`, [
+      { label: 'Курс', value: bbE.rule, source: bbE.source || 'баланс v10 §1' },
+    ]);
+}
+
+// Retail formulas tab
+const retailEl = document.getElementById('retail-formulas');
+const retail = F.retail_monthly || {};
+if (!Object.values(retail).length) {
+  retailEl.innerHTML = `<div class="hint">
+    P&L draft-офери, пов’язані з покупками в Сільпо, прибрані з основної економіки гіда.
+    Core-розрахунок нижче йде від балансу гри та активності гравця.
+  </div>`;
+}
+Object.values(retail).forEach(r => {
+  const steps = (r.steps || []).map(s => `<li>${s}</li>`).join('');
+  retailEl.innerHTML += renderFormulaBox(
+    r.label,
+    `<strong>${r.result_uah} грн/міс</strong><br>${r.formula}`,
+    r.inputs,
+    steps ? `<ol style="margin:.4rem 0 0 1.1rem;font-size:.84rem;color:var(--muted)">${steps}</ol>` : ''
+  );
+});
+
+const spT = F.sp_ongoing || {};
+document.getElementById('sp-template').innerHTML = renderFormulaBox(
+  spT.label || 'Ігрові знижки за сезон',
+  spT.template || '',
+  [
+    { label: 'Орієнтир вартості знижок', value: (spT.anchor_uah_per_month || 96) + ' грн/міс', source: spT.anchor_source || 'баланс гри' },
+    { label: 'Місяців у сезоні', value: spT.months || 3, source: 'сценарне налаштування' },
+    { label: 'Повний активний патерн', value: (spT.expected_sp_f2p || 6) + ' знижок за сезон', source: 'баланс гри' },
+  ],
+  'Множиться на те, наскільки часто сегмент грає, і на кількість знижок за сезон.'
+);
+
+const burnT = F.burn_template || {};
+const burnNotes = (burnT.explanation || []).map(x => `<li>${x}</li>`).join('');
+const benchRows = (burnT.benchmark_check || []).map(row => {
+  const cls = row.status.includes('підтверджено') && !row.status.includes('не ') ? 'status-ok'
+    : row.status.includes('не підтверджено') ? 'status-bad'
+    : 'status-warn';
+  return `<tr>
+    <td>${row.metric}</td>
+    <td class="${cls}">${row.status}</td>
+    <td>${row.benchmark}</td>
+    <td>${row.decision}</td>
+  </tr>`;
+}).join('');
+document.getElementById('burn-template').innerHTML = renderFormulaBox(
+  burnT.label || 'Списані ББ у грі',
+  burnT.template || '',
+  [
+    { label: 'Доступні ББ', value: burnT.balance_part || '', source: burnT.balance_part_source || 'сценарне налаштування' },
+    { label: 'Курс ББ', value: '1 ББ = 1 грн', source: burnT.liability_source || 'баланс гри' },
+  ],
+  burnNotes ? `<ul style="margin:.4rem 0 0 1.1rem">${burnNotes}</ul>` : ''
+) + (benchRows ? `<div class="formula">
+  <div class="formula-title">Перевірка бенчами: що підтверджено, а що сценарій</div>
+  <table class="formula-parts">
+    <tr><th>Цифра</th><th>Статус</th><th>Бенч</th><th>Що робимо</th></tr>
+    ${benchRows}
+  </table>
+</div>` : '');
+
+const paidT = F.paid_actions_template || {};
+const paidNotes = (paidT.explanation || []).map(x => `<li>${x}</li>`).join('');
+document.getElementById('paid-actions-template').innerHTML = renderFormulaBox(
+  paidT.label || 'Платні дії за реальні гроші',
+  paidT.template || '',
+  paidT.inputs || [],
+  paidNotes ? `<ul style="margin:.4rem 0 0 1.1rem">${paidNotes}</ul>` : ''
+);
+
+const grossT = F.gross_template || {};
+document.getElementById('gross-template').innerHTML = renderFormulaBox(
+  grossT.label || 'Вартість винагород за сезон',
+  grossT.template || '',
+  []
+);
+
+// Segments
+const segEl = document.getElementById('segments-viz');
+const segFormulas = F.segments || {};
+const MONTHS = DATA.meta.season_months_pnl || 3;
+const bridgeNames = {
+  x2: 'додаткові ББ за x2',
+  sp_cult: 'додаткові культові знижки',
+  sp_stm: 'знижки на лінійку Потойбіччя',
+  level: 'нагороди за рівні'
+};
+Object.entries(DATA.segments).forEach(([id, s]) => {
+  const sf = segFormulas[id] || {};
+  const startOneTime = sf.cult_entry_uah || DATA.cult_entry_pack.total_uah || 0;
+  const recurringRewardMonth = (s.gross_season_uah - startOneTime) / MONTHS;
+  const burnMonth = s.burn_season_uah / MONTHS;
+  const retailMarginMonth = sf.retail_margin_month_uah || 0;
+  const firstMonthCost = startOneTime + recurringRewardMonth;
+  const firstMonthDelta = burnMonth - firstMonthCost;
+  const firstMonthNet = firstMonthDelta + retailMarginMonth;
+  const recurringDelta = burnMonth - recurringRewardMonth;
+  const recurringNet = recurringDelta + retailMarginMonth;
+  const deltaClass = firstMonthNet >= 0 ? 'pos' : 'neg';
+  const guests = Math.round(DATA.meta.f4_cult_guests * s.pct_f4);
+  const activity = sf.activity_label || ((sf.activity_factor || 1) * 100).toFixed(0) + '% активності';
+  const playFrequency = sf.play_frequency_factor != null ? fmtPct(sf.play_frequency_factor) : '—';
+  const patternPower = sf.pattern_power_factor != null ? fmtPct(sf.pattern_power_factor) : '—';
+  const activityEq = `${playFrequency} × ${patternPower} = ${activity}`;
+  segEl.innerHTML += `
+      <div class="seg-card">
+      <div class="seg-head">
+        <div><strong>${id} · ${s.label}</strong> <span class="tag">${fmtPct(s.pct_f4)} · ${fmtN(guests)} гостей</span></div>
+        <span class="tag">${activity}</span>
+      </div>
+      <p style="margin:.15rem 0 .55rem;color:var(--muted);font-size:.82rem">
+        Активність рахуємо відносно S3: частота гри (${playFrequency}) × сила патерну (${patternPower}) = ${activity}.
+        Орієнтир цього сегменту: ${s.mmmm_per_day} очок прогресу/день.
+      </p>
+      <table class="simple">
+        <tr><th></th><th class="num">На 1 гостя</th></tr>
+        <tr><td>Стартовий подарунок разово</td><td class="num">${startOneTime.toFixed(0)} грн</td></tr>
+        <tr><td>Поточні винагороди / міс</td><td class="num">${recurringRewardMonth.toFixed(0)} грн</td></tr>
+        <tr><td>Списані ББ у грі</td><td class="num">${burnMonth.toFixed(0)} грн</td></tr>
+        <tr><td>Маржа від додаткових покупок / міс</td><td class="num pos">${retailMarginMonth > 0 ? '+' : ''}${retailMarginMonth.toFixed(1)} грн</td></tr>
+        <tr><td><strong>Баланс у 1-й місяць</strong></td><td class="num ${deltaClass}">${firstMonthNet > 0 ? '+' : ''}${firstMonthNet.toFixed(0)} грн</td></tr>
+      </table>
+      <p style="margin:.35rem 0 .55rem;color:var(--muted);font-size:.8rem">
+        Після старту без разового подарунка: ${recurringNet > 0 ? '+' : ''}${recurringNet.toFixed(0)} грн/міс з маржею покупок.
+      </p>
+      <details>
+        <summary>Як пораховано — простими формулами</summary>
+        ${renderFormulaBox('Вартість винагород за 3 міс (довідково)', sf.gross_formula || '', [])}
+        ${renderFormulaBox('Ігрові знижки за 3 міс (довідково)', sf.sp_formula || '', [])}
+        ${sf.bridge_parts && Object.values(sf.bridge_parts).some(v => v > 0) ? renderFormulaBox('Офери, пов’язані з покупками в Сільпо / міс',
+          Object.entries(sf.bridge_parts).filter(([,v]) => v > 0).map(([k,v]) => (bridgeNames[k] || k) + ': ' + v + ' грн').join(' + ') || '0 грн',
+          []) : ''}
+        ${renderFormulaBox('Доступні ББ з покупок / міс', sf.earned_bb_formula || '', [])}
+        ${renderFormulaBox('Списані ББ у грі за 3 міс (довідково)', sf.burn_formula || '', [])}
+        ${renderFormulaBox('Маржа від додаткових покупок у Сільпо / міс', sf.retail_margin_formula || '0 грн/міс', [
+          { label: 'Джерело формули', value: retailMarginMonth.toFixed(2) + ' грн/міс', source: sf.retail_margin_source || 'P&L v3' }
+        ])}
+        ${renderFormulaBox('Наскільки активно грає', activityEq, [
+          { label: 'Частота гри', value: playFrequency, source: sf.activity_source || 'сценарне налаштування', note: 'Як часто цей сегмент реально користується ігровими механіками.' },
+          { label: 'Сила патерну', value: patternPower, source: 'баланс гри', note: 'Порівнюємо очки прогресу цього сегменту з S3.' },
+          { label: 'Разом', value: activity, source: 'результат формули', note: sf.activity_explanation || '' },
+          { label: 'Орієнтир активної гри', value: `${s.mmmm_per_day} очок/день`, source: 'баланс гри' }
+        ])}
+      </details>
+      <ul style="margin:.4rem 0;padding-left:1.2rem;font-size:.84rem;color:var(--muted)">
+        ${(s.pocket_balance || []).map(p => `<li>${p}</li>`).join('')}
+      </ul>
+    </div>`;
+});
+
+// Totals
+const p = DATA.pools;
+const poolRecurringRewardMonth = (p.gross_pool_season_uah - p.welcome_pool_one_time_uah) / MONTHS;
+const poolBurnMonth = p.burn_pool_season_uah / MONTHS;
+const poolRetailMarginMonth = Object.entries(DATA.segments).reduce((sum, [id, s]) => {
+  const guests = DATA.meta.f4_cult_guests * s.pct_f4;
+  const margin = (segFormulas[id]?.retail_margin_month_uah || 0);
+  return sum + guests * margin;
+}, 0);
+const poolFirstMonthCost = p.welcome_pool_one_time_uah + poolRecurringRewardMonth;
+const poolFirstMonthDelta = poolBurnMonth - poolFirstMonthCost;
+const poolFirstMonthNet = poolFirstMonthDelta + poolRetailMarginMonth;
+const poolRecurringDelta = poolBurnMonth - poolRecurringRewardMonth;
+const poolRecurringNet = poolRecurringDelta + poolRetailMarginMonth;
+document.getElementById('f4-count').textContent = fmtN(p.f4_guests);
+document.getElementById('kpi-row').innerHTML = `
+  <div class="kpi"><div class="lbl">У культi</div><div class="val">${fmtN(p.f4_guests)}</div></div>
+  <div class="kpi"><div class="lbl">Стартові подарунки разово</div><div class="val">${fmtMoney(p.welcome_pool_one_time_uah)}</div></div>
+  <div class="kpi"><div class="lbl">Поточні винагороди / міс</div><div class="val">${fmtMoney(poolRecurringRewardMonth)}</div></div>
+  <div class="kpi"><div class="lbl">Списані ББ / міс</div><div class="val">${fmtMoney(poolBurnMonth)}</div></div>
+  <div class="kpi"><div class="lbl">Маржа покупок / міс</div><div class="val pos">${fmtMoney(poolRetailMarginMonth)}</div></div>
+  <div class="kpi"><div class="lbl">Баланс у 1-й місяць</div><div class="val ${poolFirstMonthNet >= 0 ? 'pos' : 'neg'}">${fmtMoney(poolFirstMonthNet)}</div></div>`;
+
+const segmentSummaryRows = [];
+Object.entries(DATA.segments).forEach(([id, s]) => {
+  const sf = segFormulas[id] || {};
+  const guests = DATA.meta.f4_cult_guests * s.pct_f4;
+  const startOneTime = sf.cult_entry_uah || DATA.cult_entry_pack.total_uah || 0;
+  const recurringRewardMonth = (s.gross_season_uah - startOneTime) / MONTHS;
+  const burnMonth = s.burn_season_uah / MONTHS;
+  const retailMarginMonth = sf.retail_margin_month_uah || 0;
+  segmentSummaryRows.push({
+    id,
+    guests,
+    startPool: guests * startOneTime,
+    recurringPoolMonth: guests * recurringRewardMonth,
+    burnPoolMonth: guests * burnMonth,
+    retailMarginMonth: guests * retailMarginMonth,
+    firstMonthNet: guests * (burnMonth - startOneTime - recurringRewardMonth + retailMarginMonth),
+  });
+});
+const segmentSummaryTotal = segmentSummaryRows.reduce((acc, row) => {
+  Object.keys(acc).forEach(k => { acc[k] += row[k]; });
+  return acc;
+}, { guests: 0, startPool: 0, recurringPoolMonth: 0, burnPoolMonth: 0, retailMarginMonth: 0, firstMonthNet: 0 });
+const segmentSummaryHtml = segmentSummaryRows.map(row => `<tr>
+  <td><strong>${row.id} · ${DATA.segments[row.id]?.label || ''}</strong></td>
+  <td class="val">${fmtN(row.guests)}</td>
+  <td class="val">${fmtMoney(row.startPool)}</td>
+  <td class="val">${fmtMoney(row.recurringPoolMonth)}</td>
+  <td class="val">${fmtMoney(row.burnPoolMonth)}</td>
+  <td class="val pos">${fmtMoney(row.retailMarginMonth)}</td>
+  <td class="val ${row.firstMonthNet >= 0 ? 'pos' : 'neg'}">${fmtMoney(row.firstMonthNet)}</td>
+</tr>`).join('');
+document.getElementById('segment-summary').innerHTML = `<div class="formula">
+  <div class="formula-title">Як сегменти S0–S3 складаються в загальний результат</div>
+  <p style="font-size:.84rem;color:var(--muted);margin:.2rem 0 .7rem">
+    Кожен рядок = кількість гостей сегменту × економіка на 1 гостя. Рядок «Разом» має сходитися з KPI вище.
+  </p>
+  <table class="formula-parts">
+    <tr>
+      <th>Сегмент</th>
+      <th>Гостей</th>
+      <th>Старт разово</th>
+      <th>Винагороди / міс</th>
+      <th>Списані ББ / міс</th>
+      <th>Маржа / міс</th>
+      <th>Баланс 1-й міс</th>
+    </tr>
+    ${segmentSummaryHtml}
+    <tr>
+      <th>Разом</th>
+      <th class="val">${fmtN(segmentSummaryTotal.guests)}</th>
+      <th class="val">${fmtMoney(segmentSummaryTotal.startPool)}</th>
+      <th class="val">${fmtMoney(segmentSummaryTotal.recurringPoolMonth)}</th>
+      <th class="val">${fmtMoney(segmentSummaryTotal.burnPoolMonth)}</th>
+      <th class="val pos">${fmtMoney(segmentSummaryTotal.retailMarginMonth)}</th>
+      <th class="val ${segmentSummaryTotal.firstMonthNet >= 0 ? 'pos' : 'neg'}">${fmtMoney(segmentSummaryTotal.firstMonthNet)}</th>
+    </tr>
+  </table>
+</div>`;
+
+const poolF = F.pools || {};
+document.getElementById('pool-formulas').innerHTML =
+  renderFormulaBox('Стартові подарунки на всіх', poolF.welcome_pool?.formula || '', [{ label: 'Результат', value: fmtMoney(p.welcome_pool_one_time_uah), source: 'розрахунок цієї сторінки' }]) +
+  renderFormulaBox('Поточні винагороди за місяць (без стартового подарунка)', '(сезонний пул − стартові подарунки) ÷ 3 місяці', [
+    { label: 'Результат / міс', value: fmtMoney(poolRecurringRewardMonth), source: 'розрахунок цієї сторінки' },
+    { label: 'Довідково: баланс після старту / міс з маржею', value: fmtMoney(poolRecurringNet), source: 'розрахунок цієї сторінки' },
+    { label: 'Довідково / 3 міс', value: fmtMoney(p.gross_pool_season_uah), source: 'P&L сезон' }
+  ]) +
+  renderFormulaBox('Маржа від додаткових покупок у Сільпо / міс', 'сума по сегментах: гості × маржа активного гравця × активність сегмента', [
+    { label: 'Результат / міс', value: fmtMoney(poolRetailMarginMonth), source: 'P&L v3 + поточні S2/S3' },
+    { label: 'База на 1 активного', value: '3145 × 10% × 14,2% = 44,66 грн/міс', source: 'P&L v3' },
+    { label: 'Кількість гостей', value: 'S2+S3 = F5', source: 'поточна модель воронки' }
+  ]);
+
+const rec = F.pnl_reconcile || {};
+const pnlReconcileEl = document.getElementById('pnl-reconcile');
+if (pnlReconcileEl && rec.rows?.length) {
+  const rows = rec.rows.map(r => `<tr>
+    <td><strong>${r.block}</strong><br><span class="src">${r.meaning}</span></td>
+    <td>${r.guide}</td>
+    <td>${r.pnl}</td>
+    <td>${r.status}</td>
+  </tr>`).join('');
+  pnlReconcileEl.innerHTML = `<div class="formula">
+    <div class="formula-title">${rec.title || 'Звірка з P&L'}</div>
+    <p style="font-size:.84rem;color:var(--muted);margin:.2rem 0 .7rem">${rec.note || ''}</p>
+    <table class="formula-parts">
+      <tr><th>Блок</th><th>Гід гостя</th><th>P&L / scenario</th><th>Висновок</th></tr>
+      ${rows}
+    </table>
+  </div>`;
+}
+
+document.getElementById('one-liner').textContent =
+  `До культу доходить ${fmtN(p.f4_guests)} з 2,5 млн. Стартовий подарунок за балансом — ${DATA.cult_entry_pack.total_uah} грн (не 38). ` +
+  `Разові стартові витрати не розмазуємо по місяцях: окремо показуємо старт, окремо поточну економіку.`;
+
+document.getElementById('footer-meta').textContent =
+  'Цифри оновлюються з моделі. Частки сегментів і частота гри — сценарні припущення.';
+</script>
+</body>
+</html>

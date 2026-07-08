@@ -75,17 +75,16 @@
     .funnel-bar.accent { background: var(--accent); }
     .funnel-sub { font-size: .78rem; color: var(--muted); }
     /* Cards */
-    .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .85rem; }
-    @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
-    .compare-card { border-radius: 10px; padding: .9rem 1rem; border: 1px solid var(--border); }
+    .compare { display: flex; flex-wrap: nowrap; gap: .85rem; overflow-x: auto; padding-bottom: .15rem; }
+    .compare-card { flex: 0 0 220px; border-radius: 10px; padding: .9rem 1rem; border: 1px solid var(--border); }
     .compare-card.old { background: #fff7ed; border-color: #fed7aa; }
     .compare-card.new { background: #f0fdf4; border-color: #bbf7d0; }
     .compare-card.neutral { background: #f8fafc; border-color: var(--border); }
     .compare-card.warn { background: #fffbeb; border-color: #fde68a; }
     .big-num { font-size: 1.65rem; font-weight: 800; margin: .2rem 0; }
     .tag { font-size: .7rem; padding: .12rem .4rem; border-radius: 4px; background: #e2e8f0; font-weight: 600; display: inline-block; white-space: nowrap; }
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .65rem; }
-    .kpi { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: .65rem; }
+    .kpi-row { display: flex; flex-wrap: nowrap; gap: .65rem; overflow-x: auto; padding-bottom: .15rem; }
+    .kpi { flex: 0 0 170px; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: .65rem; }
     .kpi .lbl { font-size: .68rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); min-height: 2.2em; }
     .kpi .val { font-size: 1.05rem; font-weight: 700; margin-top: .15rem; white-space: nowrap; }
     .seg-card { border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; margin-bottom: .7rem; overflow-x: auto; }
@@ -110,7 +109,8 @@
       .wrap { padding-left: .7rem; padding-right: .7rem; }
       section { padding: 1rem; }
       .tab-btn { font-size: .74rem; padding: .45rem .6rem; }
-      .kpi-row { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); }
+      .compare-card { flex-basis: 220px; }
+      .kpi { flex-basis: 145px; }
     }
   </style>
 </head>

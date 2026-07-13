@@ -1,0 +1,15 @@
+# Economics Hub — не індексувати (внутрішній гід)
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Yandex
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
+
+User-agent: *
+Disallow: /

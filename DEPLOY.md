@@ -1,80 +1,64 @@
 # Деплой Economics Hub на Vercel (захищений доступ)
 
-Статичний гід: `index.html` → `potoybichchya-economics.html` + `balance-guest-guide.html`.
-
-**Джерело правди:** репо `Потойбіччя` → `python tools/sync_economics_hub_pages.py --push` копіює артефакти сюди.
+**Production:** https://potoybichchya-economics.vercel.app  
+**Проєкт Vercel:** `paliis-projects/potoybichchya-economics` (GitHub `Paliis/potoybichchya-guide` підключено)
 
 ---
 
-## Крок 1. Синхронізація з робочого проєкту
+## Оновлення після змін у `Потойбіччя` (рекомендовано)
 
 ```powershell
 cd "c:\Users\user\Desktop\Курсор\Потойбіччя\tools"
-python sync_economics_hub_pages.py --push
+python sync_economics_hub_pages.py --publish
 ```
 
----
+Що відбувається:
+1. `balance_guest_export` + `economics_hub_export`
+2. Копіювання HTML + `robots.txt` + `vercel.json` у `potoybichchya-guide`
+3. `git push` -> **Vercel автоматично перезбирає** (GitHub integration)
 
-## Крок 2. Перший деплой на Vercel (без Git)
-
-У папці **potoybichchya-guide**:
+Миттєвий CLI-деплой (без очікування Git hook):
 
 ```powershell
-cd "c:\Users\user\Desktop\Курсор\potoybichchya-guide"
-npx vercel@latest
+python sync_economics_hub_pages.py --publish --deploy
 ```
 
-- **Set up and deploy?** — Yes  
-- **Link to existing project?** — No (перший раз) або Yes, якщо проєкт уже є  
-- **Project name:** `potoybichchya-economics` (або Enter)  
-- **Directory:** Enter (корінь репо)  
-- Build / Output: Vercel побачить лише HTML — **без** `npm run build`
+---
 
-Після деплою з’явиться URL типу `https://potoybichchya-economics-xxxx.vercel.app`.
+## Password Protection (зробити один раз)
+
+1. https://vercel.com/paliis-projects/potoybichchya-economics/settings/deployment-protection
+2. Увімкнути **Password Protection**
+3. Задати пароль -> роздати колегам URL + пароль
 
 ---
 
-## Крок 3. Password Protection (обовʼязково)
+## Вимкнути публічний GitHub Pages (рекомендовано)
 
-1. [Vercel Dashboard](https://vercel.com) → проєкт **potoybichchya-economics**  
-2. **Settings → Deployment Protection**  
-3. Увімкнути **Password Protection** (Standard Protection)  
-4. Задати пароль → зберегти  
-5. Роздати колегам: **URL + пароль** (не публікувати в open web)
+Старий URL `https://paliis.github.io/potoybichchya-guide/` лишається публічним, поки Pages увімкнено.
 
-Альтернатива (якщо є Pro): **Vercel Authentication** — доступ лише для email з allowlist.
+GitHub -> `potoybichchya-guide` -> **Settings -> Pages -> Disable**
 
-Посилання з Stage Builder (той самий акаунт `paliis-projects`):  
-https://vercel.com/docs/security/deployment-protection
+Або CLI: `gh api -X DELETE repos/Paliis/potoybichchya-guide/pages`
 
 ---
 
-## Крок 4. Автодеплой з GitHub (опційно)
+## Перший деплой (вже зроблено)
 
-1. Vercel → **Add New Project** → Import `Paliis/potoybichchya-guide` (або ваш fork)  
-2. Framework Preset: **Other** (статичні файли)  
-3. Build Command: порожньо  
-4. Output Directory: `.` (корінь)  
-5. Після кожного `sync --push` Vercel перезбере сайт автоматично  
-
-**Password Protection** лишається в налаштуваннях проєкту — не злітає після redeploy.
+```powershell
+cd potoybichchya-guide
+npx vercel@latest link --yes --project potoybichchya-economics
+npx vercel@latest --prod --yes
+```
 
 ---
 
-## GitHub Pages (legacy)
-
-Раніше: `https://paliis.github.io/potoybichchya-guide/` — **публічно, без пароля**.
-
-Рекомендація: у GitHub repo **Settings → Pages → Disable** або не ділитись старим URL після переходу на Vercel.
-
----
-
-## Що вже в репо
+## Файли в репо
 
 | Файл | Роль |
 |------|------|
-| `robots.txt` | Заборона індексації пошуковиками |
-| `vercel.json` | `X-Robots-Tag: noindex` на всіх відповідях |
-| HTML `<meta robots>` | Другий шар noindex у сторінках |
+| `robots.txt` | Disallow пошуковиків |
+| `vercel.json` | `X-Robots-Tag: noindex` |
+| HTML | `<meta robots noindex>` |
 
-**Примітка:** noindex + robots **не** замінюють пароль — лише ховають від Google. Справжній gate — **Deployment Protection** на Vercel.
+noindex **не** замінює пароль. Gate = **Deployment Protection**.

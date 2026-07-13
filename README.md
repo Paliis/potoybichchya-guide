@@ -1,14 +1,19 @@
 # Potoybichchya Economics Hub
 
-Статичний **Economics Hub** (гість + вендор + P&L). Доступ — **Vercel + Password Protection**, не публічний GitHub Pages.
+Статичний **Economics Hub** (гість + вендор + P&L).
 
-Джерело: `docs/economics/` у робочому проєкті `Потойбіччя` → `python tools/sync_economics_hub_pages.py --push`.
+- **Production:** https://potoybichchya-economics.vercel.app
+- **Доступ:** Vercel Password Protection (Settings -> Deployment Protection)
+- **Оновлення:** у проєкті `Потойбіччя` -> `python tools/sync_economics_hub_pages.py --publish`
 
-## Деплой і безпека
+Джерело: `docs/economics/` у робочому проєкті.
 
-Див. **[DEPLOY.md](DEPLOY.md)** — Vercel CLI, Password Protection, вимкнення GitHub Pages.
+## Деплой
+
+Git push у цей репо автоматично деплоїть на Vercel (інтеграція GitHub).
+
+Див. **[DEPLOY.md](DEPLOY.md)**.
 
 ## SEO
 
-- `robots.txt` — Disallow для пошуковиків
-- `<meta robots noindex>` + `X-Robots-Tag` у `vercel.json`
+- `robots.txt` + `<meta robots noindex>` + `X-Robots-Tag` у `vercel.json`

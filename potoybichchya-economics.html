@@ -8,28 +8,49 @@
   <style>
     :root {
       --bg:#f4f6f9; --card:#fff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
-      --accent:#1d4ed8; --soft:#eff6ff; --pos:#15803d; --neg:#b91c1c; --warn:#b45309;
-      --formula-bg:#f8fafc; --hub-h:44px;
+      --accent:#1d4ed8; --accent-dark:#1e3a8a; --soft:#eff6ff; --pos:#15803d; --neg:#b91c1c; --warn:#b45309;
+      --formula-bg:#f8fafc; --hub-h:62px;
+      --shadow-sm:0 1px 3px rgba(15,23,42,.06); --shadow-md:0 4px 14px rgba(15,23,42,.08);
     }
     * { box-sizing:border-box; }
     body { margin:0; font-family:"Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.55; }
-    .hub-top { position:sticky; top:0; z-index:100; background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,.12); }
-    .hub-top .wrap { max-width:1180px; margin:0 auto; padding:0 1rem; }
-    .hub-bar { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; padding:.45rem 0; }
-    .hub-brand { font-weight:800; font-size:.88rem; letter-spacing:.01em; white-space:nowrap; }
-    .hub-sections { display:flex; flex-wrap:wrap; gap:.35rem; }
-    .hub-sections button {
-      border:none; background:rgba(255,255,255,.14); color:#fff; padding:.45rem .85rem;
-      border-radius:8px; cursor:pointer; font-size:.8rem; font-weight:700;
+    .hub-top {
+      position:sticky; top:0; z-index:100;
+      background:linear-gradient(135deg,#0f172a 0%,#1e40af 55%,#2563eb 100%);
+      color:#fff; box-shadow:var(--shadow-md);
     }
-    .hub-sections button.active { background:var(--bg); color:var(--accent); }
-    .hub-sections button:hover:not(.active) { background:rgba(255,255,255,.28); }
+    .hub-top .wrap { max-width:1180px; margin:0 auto; padding:0 1rem; }
+    .hub-bar { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding:.65rem 0; }
+    .hub-brand-block { display:flex; flex-direction:column; gap:.1rem; min-width:0; }
+    .hub-brand { font-weight:800; font-size:1rem; letter-spacing:.01em; line-height:1.2; }
+    .hub-tagline { font-size:.72rem; opacity:.78; font-weight:500; }
+    .hub-sections {
+      display:flex; flex-wrap:wrap; gap:.3rem; padding:.28rem;
+      background:rgba(255,255,255,.14); border-radius:12px; border:1px solid rgba(255,255,255,.12);
+    }
+    .hub-sections button {
+      border:none; background:transparent; color:rgba(255,255,255,.92);
+      padding:.52rem .95rem; border-radius:9px; cursor:pointer;
+      font-size:.82rem; font-weight:700; line-height:1.25;
+      transition:background .15s ease, color .15s ease, box-shadow .15s ease, transform .12s ease;
+    }
+    .hub-sections button:hover:not(.active) { background:rgba(255,255,255,.18); }
+    .hub-sections button.active {
+      background:#fff; color:var(--accent-dark);
+      box-shadow:0 2px 10px rgba(15,23,42,.18); transform:translateY(-1px);
+    }
+    .hub-sections button:focus-visible { outline:2px solid #93c5fd; outline-offset:2px; }
     .wrap { max-width:1180px; margin:0 auto; padding:0 1rem 3rem; }
-    main.wrap { padding-top:.65rem; }
+    main.wrap { padding-top:.85rem; }
     #section-guest { margin:0 -1rem; }
     .root-section { display:none; }
     .root-section.active { display:block; }
     .guest-frame { width:100%; min-height:calc(100vh - var(--hub-h)); border:none; background:#fff; display:block; }
+    .sub-nav {
+      background:var(--card); border:1px solid var(--border); border-radius:12px;
+      padding:.55rem .65rem; margin-bottom:.9rem; box-shadow:var(--shadow-sm);
+    }
+    .sub-nav .tabs { margin-bottom:0; }
     section {
       background:var(--card); border:1px solid var(--border); border-radius:12px;
       padding:1rem 1.15rem; margin-bottom:.9rem; box-shadow:0 1px 2px rgba(0,0,0,.04);
@@ -38,9 +59,19 @@
     h3 { margin:.85rem 0 .4rem; font-size:.92rem; }
     .hint { background:var(--soft); border-left:4px solid var(--accent); border-radius:0 8px 8px 0; padding:.72rem .9rem; font-size:.88rem; color:#1e3a8a; }
     .hint-warn { background:#fffbeb; border-color:var(--warn); color:#92400e; }
-    .tabs { display:flex; flex-wrap:wrap; gap:.25rem; margin-bottom:.75rem; }
-    .tab-btn { border:1px solid var(--border); background:#fff; color:var(--text); padding:.42rem .7rem; border-radius:8px; cursor:pointer; font-size:.76rem; font-weight:700; }
-    .tab-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .tabs { display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:.75rem; }
+    .tab-btn {
+      border:1px solid var(--border); background:#f8fafc; color:var(--text);
+      padding:.48rem .82rem; border-radius:999px; cursor:pointer;
+      font-size:.78rem; font-weight:700; line-height:1.2;
+      transition:background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .tab-btn:hover:not(.active) { background:var(--soft); border-color:#bfdbfe; color:var(--accent-dark); }
+    .tab-btn.active {
+      background:linear-gradient(135deg,var(--accent) 0%,#2563eb 100%);
+      color:#fff; border-color:transparent; box-shadow:0 2px 8px rgba(37,99,235,.28);
+    }
+    .tab-btn:focus-visible { outline:2px solid #93c5fd; outline-offset:2px; }
     .panel { display:none; }
     .panel.active { display:block; }
     .formula { background:var(--formula-bg); border:1px solid var(--border); border-radius:10px; padding:.9rem 1rem; margin:.65rem 0; overflow-x:auto; }
@@ -81,17 +112,25 @@
     @media (max-width:720px) {
       .wrap { padding-left:.7rem; padding-right:.7rem; }
       .kpi { flex-basis:145px; }
+      .hub-bar { align-items:flex-start; }
+      .hub-sections { width:100%; }
+      .hub-sections button { flex:1 1 auto; text-align:center; padding:.5rem .55rem; font-size:.76rem; }
+      .tabs { flex-wrap:nowrap; overflow-x:auto; padding-bottom:.15rem; -webkit-overflow-scrolling:touch; }
+      .tab-btn { flex:0 0 auto; }
     }
   </style>
 </head>
 <body>
 <header class="hub-top">
   <div class="wrap hub-bar">
-    <span class="hub-brand">Потойбіччя</span>
-    <nav class="hub-sections" id="hub-sections">
-      <button type="button" data-section="guest">1. Економіка гостя</button>
-      <button type="button" data-section="vendor">2. Вендор прайсінг</button>
-      <button type="button" data-section="pnl" class="active">3. P&amp;L сценарії</button>
+    <div class="hub-brand-block">
+      <span class="hub-brand">Потойбіччя</span>
+      <span class="hub-tagline">Economics Hub · фінансовий гід</span>
+    </div>
+    <nav class="hub-sections" id="hub-sections" aria-label="Розділи проєкту">
+      <button type="button" data-section="guest">Економіка гостя</button>
+      <button type="button" data-section="vendor">Вендор прайсінг</button>
+      <button type="button" data-section="pnl" class="active">P&amp;L сценарії</button>
     </nav>
   </div>
 </header>
@@ -121,7 +160,8 @@
   </div>
 
   <div class="root-section active" id="section-pnl">
-    <nav class="tabs" id="pnl-tabs">
+    <div class="sub-nav">
+      <nav class="tabs" id="pnl-tabs" aria-label="Вкладки P&amp;L">
       <button type="button" class="tab-btn active" data-tab="start">1. Почни тут</button>
       <button type="button" class="tab-btn" data-tab="mau">2. MAU по місяцях</button>
       <button type="button" class="tab-btn" data-tab="peretok">3. Переток і F4</button>
@@ -130,6 +170,7 @@
       <button type="button" class="tab-btn" data-tab="total">6. Підсумок</button>
       <button type="button" class="tab-btn" data-tab="reconcile">7. Звірка</button>
     </nav>
+    </div>
 
     <div class="panel active" id="panel-start">
       <section>

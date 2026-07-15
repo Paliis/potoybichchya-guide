@@ -1,6 +1,6 @@
 # Potoybichchya Economics Hub
 
-Статичний **Economics Hub** (гість + вендор + P&L).
+Статичний **Economics Hub** (гість · місяці · вендор · P&L).
 
 - **Production:** https://potoybichchya-economics.vercel.app
 - **Доступ:** Vercel Password Protection (Settings -> Deployment Protection)

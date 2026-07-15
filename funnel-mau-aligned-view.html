@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Потойбіччя — скільки гостей у грі по місяцях</title>
+  <style>
+    :root {
+      --bg: #f4f6f9; --card: #fff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+      --accent: #1d4ed8; --accent-dark: #1e3a8a; --accent-soft: #eff6ff; --pos: #15803d;
+      --mkt: #0284c7; --shadow-sm: 0 1px 3px rgba(15,23,42,.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg);
+      color: var(--text); line-height: 1.55; font-size: 15px;
+    }
+    .page-head {
+      background: linear-gradient(135deg, #0f172a 0%, #1e40af 55%, #2563eb 100%);
+      border-bottom: none; padding: .9rem 0 .75rem; box-shadow: 0 4px 14px rgba(15,23,42,.12);
+    }
+    .page-intro { color: #fff; padding: 0 1rem .55rem; max-width: 1180px; margin: 0 auto; }
+    .page-intro h1 { margin: 0 0 .35rem; font-size: 1.2rem; font-weight: 800; }
+    .page-intro p { margin: 0; opacity: .92; font-size: .88rem; max-width: 46rem; line-height: 1.45; }
+    .page-nav { max-width: 1180px; margin: 0 auto; padding: 0 1rem; }
+    .back-link {
+      display: inline-block; margin-top: .5rem; font-size: .78rem; font-weight: 600;
+      color: rgba(255,255,255,.9); text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; color: #fff; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+    section {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.15rem 1.3rem; margin-bottom: .9rem; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    h2 { margin: 0 0 .5rem; font-size: 1.05rem; color: var(--accent); }
+    .sec-desc { font-size: .86rem; color: var(--muted); margin-bottom: .85rem; }
+    .hint {
+      background: var(--accent-soft); border-left: 4px solid var(--accent);
+      padding: .75rem .95rem; border-radius: 0 8px 8px 0; font-size: .86rem; margin-bottom: .9rem;
+    }
+    .hint strong { color: var(--accent-dark); }
+    .kpi-row { display: flex; flex-wrap: nowrap; gap: .65rem; overflow-x: auto; margin-bottom: .9rem; padding-bottom: .15rem; }
+    .kpi {
+      flex: 0 0 200px; background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 10px; padding: .75rem .85rem;
+    }
+    .kpi .lbl { font-size: .68rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); min-height: 2.4em; }
+    .kpi .val { font-size: 1.15rem; font-weight: 800; margin-top: .2rem; white-space: nowrap; }
+    .kpi .note { font-size: .74rem; color: var(--muted); margin-top: .25rem; }
+    .kpi.econ .val { color: var(--accent); }
+    .kpi.mkt .val { color: var(--mkt); }
+    .kpi.ok .val { color: var(--pos); }
+    .legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: .5rem 0 .35rem; font-size: .82rem; color: var(--muted); }
+    .leg { display: flex; align-items: center; gap: .45rem; }
+    .leg-line { width: 26px; height: 3px; border-radius: 2px; }
+    .formula {
+      background: #f8fafc; border: 1px solid var(--border); border-radius: 10px;
+      padding: .9rem 1rem; margin-top: .85rem;
+    }
+    .formula-title { font-weight: 700; font-size: .88rem; margin-bottom: .4rem; color: var(--accent-dark); }
+    .formula-eq {
+      font-size: .86rem; background: #fff; border: 1px dashed #cbd5e1;
+      border-radius: 6px; padding: .5rem .7rem; margin: .35rem 0;
+    }
+    table.simple { width: 100%; min-width: 720px; border-collapse: collapse; font-size: .82rem; }
+    table.simple th, table.simple td { border: 1px solid var(--border); padding: .45rem .55rem; vertical-align: middle; }
+    table.simple th { background: #f1f5f9; font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+    table.simple th .code { display: block; font-weight: 500; text-transform: none; letter-spacing: 0; color: #94a3b8; font-size: .68rem; margin-top: .1rem; }
+    td.num, th.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    tr.row-launch td { background: var(--accent-soft); }
+    tr.row-season td { background: #f0fdf4; }
+    .tag {
+      font-size: .68rem; padding: .1rem .38rem; border-radius: 4px;
+      background: #e2e8f0; font-weight: 600; display: inline-block; margin-left: .35rem;
+    }
+    .tag-launch { background: #dbeafe; color: var(--accent-dark); }
+    .tag-season { background: #dcfce7; color: #166534; }
+    details { margin-top: .65rem; font-size: .86rem; }
+    details summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+    .glossary { margin: .5rem 0 0; }
+    .glossary dt { font-weight: 700; margin-top: .55rem; font-size: .84rem; }
+    .glossary dd { margin: .12rem 0 .45rem 0; color: var(--muted); font-size: .84rem; }
+    .footer { text-align: center; color: var(--muted); font-size: .76rem; margin-top: 1.25rem; }
+    code { background: #f1f5f9; padding: .08rem .3rem; border-radius: 3px; font-size: .82em; }
+    .err {
+      background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;
+      padding: 14px; border-radius: 8px; font-size: .88rem; margin-bottom: 1rem;
+    }
+    .table-wrap { overflow-x: auto; }
+    .section-ctx {
+      display: none; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em;
+      color: var(--muted); font-weight: 700; margin-bottom: .5rem;
+    }
+    .section-ctx strong { color: var(--accent-dark); }
+    body.embed { background: var(--bg); }
+    body.embed .page-head,
+    body.embed #glossary-section,
+    body.embed #footer-note { display: none; }
+    body.embed .section-ctx { display: block; }
+    body.embed .wrap { padding: .65rem 1rem 1.5rem; max-width: none; }
+    body.embed .hint { margin-bottom: .65rem; font-size: .84rem; }
+    @media (max-width: 720px) {
+      .wrap { padding-left: .7rem; padding-right: .7rem; }
+      section { padding: 1rem; }
+      .kpi { flex-basis: 165px; }
+    }
+  </style>
+</head>
+<body>
+<header class="page-head">
+  <div class="page-intro">
+    <h1>Скільки гостей у грі — по місяцях</h1>
+    <p>Одна воронка з гайду гостя, два підсумки: <strong>охоплення</strong> (F3) і <strong>активні</strong> (F5 = S2+S3). По місяцях — нові + 7% повернення; піки на старті сезону.</p>
+  </div>
+  <div class="page-nav">
+    <a class="back-link" href="potoybichchya-economics.html#guest">← Economics Hub</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="section-ctx">Розділ 2 · <strong>Гості по місяцях</strong></div>
+  <div class="hint" id="read-hint">
+    <strong>Як читати.</strong> Ті самі кроки, що на вкладці «Скільки людей» (75% → 90% → 26%), але <em>помісячно</em>: нові + 7% тих, хто повернувся з минулого місяця.
+  </div>
+
+  <div class="kpi-row" id="kpis"></div>
+
+  <section>
+    <h2>Графік: жовтень 2026 → вересень 2029</h2>
+    <p class="sec-desc">Синя лінія — <strong>активні</strong> (F5). Пунктир — <strong>охоплення</strong> (F3).</p>
+    <div class="legend">
+      <div class="leg"><span class="leg-line" style="background:#2563eb"></span> <strong>Активні</strong> — F5 + повернулись</div>
+      <div class="leg"><span class="leg-line" style="background:#93c5fd"></span> <strong>Охоплення</strong> — F3 + повернулись</div>
+    </div>
+    <svg id="chart" style="width:100%;display:block;margin-top:.35rem"></svg>
+    <div class="formula" id="formula"></div>
+  </section>
+
+  <section>
+    <h2>Таблиця: жовтень 2026 → грудень 2028</h2>
+    <p class="sec-desc">Помісячна розкладка — для звірки з гайдом. Підсвічено: запуск і старт кожного нового сезону.</p>
+    <div class="table-wrap">
+      <table class="simple" id="detail-table">
+        <thead>
+          <tr>
+            <th>Місяць</th>
+            <th class="num">Зайшли в гру<span class="code">F1 · % від VR</span></th>
+            <th class="num">Нові: стартовий екран<span class="code">F3</span></th>
+            <th class="num">Нові: активні<span class="code">F5 = S2+S3</span></th>
+            <th class="num">Повернулись<span class="code">охоплення</span></th>
+            <th class="num">Разом охоплення</th>
+            <th class="num">Повернулись<span class="code">активні</span></th>
+            <th class="num">Разом активні</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="glossary-section">
+    <h2>Терміни</h2>
+    <dl class="glossary">
+      <dt>Зайшли в Потойбіччя (F1)</dt>
+      <dd>Відкрили гру з застосунку Сільпо. % змінюється по місяцях.</dd>
+      <dt>Охоплення (F3)</dt>
+      <dd>Пройшли стартовий екран — для партнерів і медіа.</dd>
+      <dt>Активні (F5)</dt>
+      <dd>Активно грають = <strong>S2 + S3</strong> — база P&amp;L.</dd>
+    </dl>
+    <details>
+      <summary>Джерела для команди</summary>
+      <p style="margin-top:.5rem;font-size:.82rem;color:var(--muted)">
+        <code>funnel_v2.py</code> · <code>funnel_mau_track.py</code> · <code>funnel_mau_export.py</code>
+      </p>
+    </details>
+  </section>
+
+  <p class="footer" id="footer-note">Гайд + сезонність · draft до аналітики</p>
+</main>
+
+<script>
+const MAU_DATA = {"meta":{"layer":"funnel_mau_track","source_funnel":"guest_funnel.yaml + funnel_v2.py","anchor_launch":{"f3_onboarding":281250,"f4_cult":253125,"f5_pp_active":65812},"retention_m1":0.07,"f1_pg_schedule":{"launch_pct":0.15,"season_reset_pct":0.13,"decay_per_month":0.9,"floor_pct":0.08,"season_months":3},"formulas":{"f3_new":"VR × F1% × 75%","f5_new":"VR × F1% × 75% × 90% × 26%","mktg_mau":"f3_new + prev_mktg × retention","econ_mau":"f5_new + prev_econ × retention"},"stack_id":"funnel_mau_aligned","stack_version":"2026-07-13","stack_tier":2,"lifecycle":"current","label_uk":"Гості по місяцях","depends_on":["balance_guest","guest_funnel_yaml"],"generated_by":"tools/funnel_mau_export.py"},"months":[{"month_index":0,"year":2026,"month":10,"label":"Oct 2026","f1_pg_rate":0.15,"f1_pg_guests":375000,"f3_new":281250,"f4_new":253125,"f5_new":65812,"mktg_retained":0,"mktg_mau":281250,"econ_retained":0,"econ_mau":65812},{"month_index":1,"year":2026,"month":11,"label":"Nov 2026","f1_pg_rate":0.135,"f1_pg_guests":337500,"f3_new":253125,"f4_new":227812,"f5_new":59231,"mktg_retained":19688,"mktg_mau":272813,"econ_retained":4607,"econ_mau":63838},{"month_index":2,"year":2026,"month":12,"label":"Dec 2026","f1_pg_rate":0.1215,"f1_pg_guests":303750,"f3_new":227812,"f4_new":205031,"f5_new":53308,"mktg_retained":19097,"mktg_mau":246909,"econ_retained":4469,"econ_mau":57777},{"month_index":3,"year":2027,"month":1,"label":"Jan 2027","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":17284,"mktg_mau":261034,"econ_retained":4044,"econ_mau":61082},{"month_index":4,"year":2027,"month":2,"label":"Feb 2027","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18272,"mktg_mau":237647,"econ_retained":4276,"econ_mau":55610},{"month_index":5,"year":2027,"month":3,"label":"Mar 2027","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16635,"mktg_mau":214073,"econ_retained":3893,"econ_mau":50093},{"month_index":6,"year":2027,"month":4,"label":"Apr 2027","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14985,"mktg_mau":258735,"econ_retained":3507,"econ_mau":60545},{"month_index":7,"year":2027,"month":5,"label":"May 2027","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":8,"year":2027,"month":6,"label":"Jun 2027","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":9,"year":2027,"month":7,"label":"Jul 2027","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":10,"year":2027,"month":8,"label":"Aug 2027","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":11,"year":2027,"month":9,"label":"Sep 2027","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":12,"year":2027,"month":10,"label":"Oct 2027","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":13,"year":2027,"month":11,"label":"Nov 2027","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":14,"year":2027,"month":12,"label":"Dec 2027","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":15,"year":2028,"month":1,"label":"Jan 2028","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":16,"year":2028,"month":2,"label":"Feb 2028","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":17,"year":2028,"month":3,"label":"Mar 2028","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":18,"year":2028,"month":4,"label":"Apr 2028","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":19,"year":2028,"month":5,"label":"May 2028","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":20,"year":2028,"month":6,"label":"Jun 2028","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":21,"year":2028,"month":7,"label":"Jul 2028","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":22,"year":2028,"month":8,"label":"Aug 2028","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":23,"year":2028,"month":9,"label":"Sep 2028","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":24,"year":2028,"month":10,"label":"Oct 2028","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":25,"year":2028,"month":11,"label":"Nov 2028","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":26,"year":2028,"month":12,"label":"Dec 2028","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":27,"year":2029,"month":1,"label":"Jan 2029","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":28,"year":2029,"month":2,"label":"Feb 2029","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":29,"year":2029,"month":3,"label":"Mar 2029","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":30,"year":2029,"month":4,"label":"Apr 2029","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":31,"year":2029,"month":5,"label":"May 2029","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":32,"year":2029,"month":6,"label":"Jun 2029","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090},{"month_index":33,"year":2029,"month":7,"label":"Jul 2029","f1_pg_rate":0.13,"f1_pg_guests":325000,"f3_new":243750,"f4_new":219375,"f5_new":57038,"mktg_retained":14984,"mktg_mau":258734,"econ_retained":3506,"econ_mau":60544},{"month_index":34,"year":2029,"month":8,"label":"Aug 2029","f1_pg_rate":0.117,"f1_pg_guests":292500,"f3_new":219375,"f4_new":197438,"f5_new":51334,"mktg_retained":18111,"mktg_mau":237486,"econ_retained":4238,"econ_mau":55572},{"month_index":35,"year":2029,"month":9,"label":"Sep 2029","f1_pg_rate":0.1053,"f1_pg_guests":263250,"f3_new":197438,"f4_new":177694,"f5_new":46200,"mktg_retained":16624,"mktg_mau":214062,"econ_retained":3890,"econ_mau":50090}]};
+
+const MONTH_UK = {
+  Jan:'Січ', Feb:'Лют', Mar:'Бер', Apr:'Квіт', May:'Трав', Jun:'Черв',
+  Jul:'Лип', Aug:'Серп', Sep:'Вер', Oct:'Жовт', Nov:'Лист', Dec:'Груд'
+};
+const MONTH_UK_SHORT = {
+  Jan:'жов', Feb:'лют', Mar:'бер', Apr:'кві', May:'тра', Jun:'чер',
+  Jul:'лип', Aug:'сер', Sep:'вер', Oct:'жов', Nov:'лис', Dec:'гру'
+};
+
+function fmt(n) { return n.toLocaleString('uk-UA'); }
+function pct(r) { return (r * 100).toFixed(1).replace('.', ',') + '%'; }
+function humanMonth(label) {
+  const parts = label.split(' ');
+  return (MONTH_UK[parts[0]] || parts[0]) + ' ' + parts[1];
+}
+function monthShort(label) {
+  const parts = label.split(' ');
+  return (MONTH_UK_SHORT[parts[0]] || parts[0].slice(0, 3));
+}
+
+function renderKpis(rows, meta) {
+  const oct = rows[0], nov = rows[1];
+  const anchor = meta.anchor_launch || {};
+  const retPct = Math.round((meta.retention_m1 || 0.07) * 100);
+  document.getElementById('kpis').innerHTML = [
+    {
+      lbl: 'Жовтень 2026 · охоплення (F3)',
+      val: fmt(oct.mktg_mau),
+      note: 'Перший місяць запуску',
+      cls: 'mkt'
+    },
+    {
+      lbl: 'Жовтень 2026 · активні (F5)',
+      val: fmt(oct.econ_mau),
+      note: 'Збігається з гайдом: ' + fmt(anchor.f5_pp_active || 0),
+      cls: 'econ ok'
+    },
+    {
+      lbl: 'Листопад · активні разом',
+      val: fmt(nov.econ_mau),
+      note: fmt(nov.f5_new) + ' нових + ' + fmt(nov.econ_retained) + ' повернулись',
+      cls: 'econ'
+    },
+    {
+      lbl: 'Утримання місяць → місяць',
+      val: retPct + '%',
+      note: '7% з минулого місяця',
+      cls: ''
+    },
+  ].map(k => `<div class="kpi ${k.cls}">
+    <div class="lbl">${k.lbl}</div>
+    <div class="val">${k.val}</div>
+    <div class="note">${k.note}</div>
+  </div>`).join('');
+}
+
+function renderChart(rows) {
+  const svg = document.getElementById('chart');
+  const TW = svg.parentElement.clientWidth || 960;
+  const H = 280, pL = 58, pR = 20, pT = 28, pB = 42, n = rows.length, cW = TW - pL - pR;
+  svg.setAttribute('viewBox', `0 0 ${TW} ${H}`);
+  const maxV = Math.max(...rows.map(r => r.mktg_mau)) * 1.06;
+  const xP = i => pL + (i + .5) / n * cW;
+  const y = v => pT + (1 - v / maxV) * (H - pT - pB);
+  const years = [2026, 2027, 2028, 2029];
+  const bands = { 2026: '#f8fafc', 2027: '#eff6ff', 2028: '#f0fdf4', 2029: '#fefce8' };
+  let s = '';
+  let a0 = 0;
+  for (const yr of years) {
+    const a1 = rows.findIndex((r, i) => i > a0 && r.year > yr);
+    const b = a1 < 0 ? n - 1 : a1 - 1;
+    if (b >= a0) {
+      const x1 = xP(a0) - cW / n / 2, x2 = xP(b) + cW / n / 2;
+      s += `<rect x="${x1}" y="${pT}" width="${x2 - x1}" height="${H - pT - pB}" fill="${bands[yr] || '#fff'}"/>`;
+      s += `<text x="${(x1 + x2) / 2}" y="${pT + 12}" text-anchor="middle" font-size="10" fill="#94a3b8" font-weight="600">${yr}</text>`;
+    }
+    a0 = b + 1;
+  }
+  for (const v of [0, 100000, 200000, 300000].filter(v => v <= maxV)) {
+    const yy = y(v);
+    s += `<line x1="${pL}" y1="${yy}" x2="${TW - pR}" y2="${yy}" stroke="#e2e8f0"/>`;
+    s += `<text x="${pL - 6}" y="${yy + 4}" text-anchor="end" font-size="9" fill="#94a3b8">${v / 1000} тис.</text>`;
+  }
+  let mPath = '';
+  for (let i = 0; i < n; i++) mPath += (i ? 'L' : 'M') + ` ${xP(i)} ${y(rows[i].mktg_mau)}`;
+  s += `<path d="${mPath}" fill="none" stroke="#93c5fd" stroke-width="2" stroke-dasharray="7,4"/>`;
+  let ePath = '';
+  for (let i = 0; i < n; i++) ePath += (i ? 'L' : 'M') + ` ${xP(i)} ${y(rows[i].econ_mau)}`;
+  s += `<path d="${ePath}" fill="none" stroke="#2563eb" stroke-width="2.5"/>`;
+  for (const i of [0, 3, 15]) {
+    const r = rows[i];
+    s += `<circle cx="${xP(i)}" cy="${y(r.econ_mau)}" r="4" fill="#2563eb"/>`;
+    s += `<text x="${xP(i)}" y="${y(r.econ_mau) - 10}" text-anchor="middle" font-size="9" fill="#2563eb" font-weight="700">${(r.econ_mau / 1000).toFixed(1)} тис.</text>`;
+  }
+  s += `<line x1="${xP(0)}" y1="${pT + 18}" x2="${xP(0)}" y2="${H - pB}" stroke="#3b82f6" stroke-dasharray="4,3" opacity=".5"/>`;
+  s += `<text x="${xP(0) + 4}" y="${pT + 30}" font-size="9" fill="#3b82f6">Запуск</text>`;
+  for (let i = 0; i < n; i += 3) {
+    s += `<text x="${xP(i)}" y="${H - pB + 14}" text-anchor="middle" font-size="9" fill="#94a3b8">${monthShort(rows[i].label)}</text>`;
+  }
+  s += `<line x1="${pL}" y1="${pT}" x2="${pL}" y2="${H - pB}" stroke="#cbd5e1"/>`;
+  s += `<line x1="${pL}" y1="${H - pB}" x2="${TW - pR}" y2="${H - pB}" stroke="#cbd5e1"/>`;
+  svg.innerHTML = s;
+}
+
+function rowTag(i, r) {
+  if (i === 0) return '<span class="tag tag-launch">запуск</span>';
+  if (r.month_index % 3 === 0) return '<span class="tag tag-season">новий сезон</span>';
+  return '';
+}
+
+function rowsThroughYear(rows, year) {
+  const end = rows.findIndex(r => r.year === year && r.month === 12);
+  return end >= 0 ? rows.slice(0, end + 1) : rows.filter(r => r.year <= year);
+}
+
+function renderTable(rows) {
+  const tb = document.querySelector('#detail-table tbody');
+  const slice = rowsThroughYear(rows, 2028);
+  tb.innerHTML = slice.map((r, i) => {
+    const cls = i === 0 ? 'row-launch' : (r.month_index % 3 === 0 && i > 0 ? 'row-season' : '');
+    return `<tr class="${cls}">
+      <td>${humanMonth(r.label)}${rowTag(i, r)}</td>
+      <td class="num">${pct(r.f1_pg_rate)}</td>
+      <td class="num">${fmt(r.f3_new)}</td>
+      <td class="num">${fmt(r.f5_new)}</td>
+      <td class="num">${fmt(r.mktg_retained)}</td>
+      <td class="num"><strong>${fmt(r.mktg_mau)}</strong></td>
+      <td class="num">${fmt(r.econ_retained)}</td>
+      <td class="num"><strong>${fmt(r.econ_mau)}</strong></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderFormula(meta) {
+  const a = meta.anchor_launch || {};
+  const ret = Math.round((meta.retention_m1 || 0.07) * 100);
+  const sched = meta.f1_pg_schedule || {};
+  document.getElementById('formula').innerHTML = `
+    <div class="formula-title">Як рахуємо кожен місяць</div>
+    <div class="formula-eq"><strong>Нові в охопленні</strong> = гості VR × «зайшли в гру» × 75%</div>
+    <div class="formula-eq"><strong>Нові активні</strong> = нові в охопленні × 90% (культ) × 26% (грають)</div>
+    <div class="formula-eq"><strong>Разом охоплення</strong> = нові F3 + ${ret}% × минулий місяць</div>
+    <div class="formula-eq"><strong>Разом активні</strong> = нові F5 + ${ret}% × минулий місяць</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">
+      Запуск (одна хвиля сезону): F3 = <strong>${fmt(a.f3_onboarding || 0)}</strong> ·
+      F5 = <strong>${fmt(a.f5_pp_active || 0)}</strong> ·
+      «Зайшли в гру» на старті = <strong>${Math.round((sched.launch_pct || 0.15) * 100)}%</strong>,
+      на новому сезоні ≈ <strong>${Math.round((sched.season_reset_pct || 0.13) * 100)}%</strong>
+    </p>`;
+}
+
+async function init() {
+  const embed = new URLSearchParams(location.search).get('embed') === '1' || window.self !== window.top;
+  if (embed) document.body.classList.add('embed');
+  try {
+    let data = MAU_DATA;
+    if (!data) {
+      const res = await fetch('funnel-mau-aligned-data.json');
+      if (!res.ok) throw new Error('no data');
+      data = await res.json();
+    }
+    renderKpis(data.months, data.meta);
+    renderChart(data.months);
+    renderTable(data.months);
+    renderFormula(data.meta);
+    window.addEventListener('resize', () => renderChart(data.months));
+  } catch (e) {
+    document.querySelector('.wrap').insertAdjacentHTML('afterbegin',
+      '<div class="err">Немає даних для графіка. У терміналі: <code>cd tools</code> → <code>python funnel_mau_export.py</code></div>');
+  }
+}
+init();
+</script>
+</body>
+</html>

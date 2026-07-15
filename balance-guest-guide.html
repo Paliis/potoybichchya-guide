@@ -89,7 +89,7 @@
     .src { color: var(--muted); font-size: .75rem; }
     .formula-parts .src { color: var(--muted); font-size: .75rem; }
     .formula-parts .val { text-align: right; font-weight: 600; white-space: nowrap; }
-    /* Funnel — full section width; text row + proportional shape */
+    /* Funnel — full section width; shape width is visual (counts in caption) */
     .funnel-pyramid { width: 100%; max-width: none; margin: .75rem 0 0; }
     .funnel-block { margin-bottom: 0; width: 100%; }
     .funnel-caption { margin-bottom: .45rem; width: 100%; }
@@ -412,13 +412,20 @@ if (G.podarunky) {
     <dt>Різниця</dt><dd>${G.balans}</dd>`;
 }
 
-// Funnel viz
+// Funnel viz — shape width is for readability, not 1:1 with counts (exact numbers in caption)
+function funnelShapeWidthPct(guests, maxG, index, total) {
+  const ratio = guests / maxG;
+  const indexPct = 100 - (index / Math.max(1, total - 1)) * 62; // 100% → ~38%
+  const dataPct = 34 + Math.pow(ratio, 0.42) * 66; // compress huge F0→F1 drop
+  return Math.round(indexPct * 0.5 + dataPct * 0.5);
+}
 const maxG = DATA.funnel_stages[0].guests;
 const funnelEl = document.getElementById('funnel-viz');
 const funnelStepByLabel = Object.fromEntries((F.funnel_steps || []).map(step => [step.label, step]));
 const funnelShades = ['#bfdbfe', '#93c5fd', '#60a5fa', '#3b82f6', '#1d4ed8'];
+const funnelCount = DATA.funnel_stages.length;
 funnelEl.innerHTML = DATA.funnel_stages.map((s, i) => {
-  const widthPct = Math.max(8, (s.guests / maxG) * 100);
+  const widthPct = funnelShapeWidthPct(s.guests, maxG, i, funnelCount);
   const prev = i > 0 ? DATA.funnel_stages[i - 1] : null;
   const stepMeta = funnelStepByLabel[s.label];
   const convPct = i > 0

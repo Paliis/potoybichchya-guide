@@ -89,25 +89,26 @@
     .src { color: var(--muted); font-size: .75rem; }
     .formula-parts .src { color: var(--muted); font-size: .75rem; }
     .formula-parts .val { text-align: right; font-weight: 600; white-space: nowrap; }
-    /* Funnel */
-    .funnel-pyramid { max-width: 720px; margin: .75rem auto 0; }
-    .funnel-block { margin-bottom: 0; }
-    .funnel-caption { margin-bottom: .4rem; }
+    /* Funnel — full section width; text row + proportional shape */
+    .funnel-pyramid { width: 100%; max-width: none; margin: .75rem 0 0; }
+    .funnel-block { margin-bottom: 0; width: 100%; }
+    .funnel-caption { margin-bottom: .45rem; width: 100%; }
     .funnel-caption-main {
-      display: flex; align-items: baseline; gap: .55rem; flex-wrap: wrap;
+      display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: baseline; gap: .45rem 1rem; width: 100%;
     }
     .funnel-code {
-      flex: 0 0 auto; font-size: .68rem; font-weight: 800; letter-spacing: .04em;
+      font-size: .68rem; font-weight: 800; letter-spacing: .04em;
       color: var(--accent); background: var(--accent-soft); border: 1px solid #bfdbfe;
       padding: .12rem .42rem; border-radius: 4px;
     }
-    .funnel-name { flex: 1 1 14rem; font-weight: 700; font-size: .92rem; line-height: 1.35; color: var(--text); }
-    .funnel-count { flex: 0 0 auto; font-size: 1.08rem; font-weight: 800; white-space: nowrap; color: var(--text); }
+    .funnel-name { font-weight: 700; font-size: .92rem; line-height: 1.35; color: var(--text); min-width: 0; }
+    .funnel-count { font-size: 1.08rem; font-weight: 800; white-space: nowrap; color: var(--text); text-align: right; }
     .funnel-note {
       font-size: .8rem; color: var(--muted); margin: .28rem 0 0;
-      line-height: 1.4; padding-left: 2.35rem;
+      line-height: 1.4; grid-column: 2 / -1;
     }
-    .funnel-shape-wrap { margin: 0 auto .1rem; min-width: 8rem; }
+    .funnel-shape-wrap { margin: 0 auto .1rem; width: 100%; max-width: 100%; }
     .funnel-shape {
       height: 30px;
       clip-path: polygon(.45rem 0, calc(100% - .45rem) 0, calc(100% - .3rem) 100%, .3rem 100%);
@@ -131,9 +132,9 @@
       border-radius: 999px; padding: .16rem .62rem; white-space: nowrap;
     }
     @media (max-width: 560px) {
-      .funnel-note { padding-left: 0; margin-top: .35rem; }
-      .funnel-caption-main { gap: .35rem .55rem; }
-      .funnel-count { width: 100%; padding-left: 2.35rem; }
+      .funnel-caption-main { grid-template-columns: auto 1fr; }
+      .funnel-count { grid-column: 2; text-align: left; }
+      .funnel-note { grid-column: 1 / -1; margin-top: .35rem; }
     }
     /* Cards */
     .compare { display: flex; flex-wrap: nowrap; gap: .85rem; overflow-x: auto; padding-bottom: .15rem; }
@@ -417,7 +418,7 @@ const funnelEl = document.getElementById('funnel-viz');
 const funnelStepByLabel = Object.fromEntries((F.funnel_steps || []).map(step => [step.label, step]));
 const funnelShades = ['#bfdbfe', '#93c5fd', '#60a5fa', '#3b82f6', '#1d4ed8'];
 funnelEl.innerHTML = DATA.funnel_stages.map((s, i) => {
-  const widthPct = Math.max(24, (s.guests / maxG) * 100);
+  const widthPct = Math.max(8, (s.guests / maxG) * 100);
   const prev = i > 0 ? DATA.funnel_stages[i - 1] : null;
   const stepMeta = funnelStepByLabel[s.label];
   const convPct = i > 0

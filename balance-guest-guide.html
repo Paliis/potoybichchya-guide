@@ -90,36 +90,50 @@
     .formula-parts .src { color: var(--muted); font-size: .75rem; }
     .formula-parts .val { text-align: right; font-weight: 600; white-space: nowrap; }
     /* Funnel */
-    .funnel-pyramid { max-width: 540px; margin: .5rem auto 0; }
-    .funnel-tier { margin: 0 auto; min-width: 9.5rem; }
-    .funnel-tier-inner {
-      padding: .72rem .85rem .78rem; text-align: center;
-      clip-path: polygon(.55rem 0, calc(100% - .55rem) 0, 100% 100%, 0 100%);
+    .funnel-pyramid { max-width: 720px; margin: .75rem auto 0; }
+    .funnel-block { margin-bottom: 0; }
+    .funnel-caption { margin-bottom: .4rem; }
+    .funnel-caption-main {
+      display: flex; align-items: baseline; gap: .55rem; flex-wrap: wrap;
     }
-    .funnel-tier:first-child .funnel-tier-inner {
-      clip-path: polygon(.55rem 0, calc(100% - .55rem) 0, calc(100% - .35rem) 100%, .35rem 100%);
-      border-radius: 10px 10px 0 0;
+    .funnel-code {
+      flex: 0 0 auto; font-size: .68rem; font-weight: 800; letter-spacing: .04em;
+      color: var(--accent); background: var(--accent-soft); border: 1px solid #bfdbfe;
+      padding: .12rem .42rem; border-radius: 4px;
     }
-    .funnel-tier:last-child .funnel-tier-inner {
-      clip-path: polygon(.35rem 0, calc(100% - .35rem) 0, calc(100% - .55rem) 100%, .55rem 100%);
-      border-radius: 0 0 10px 10px;
+    .funnel-name { flex: 1 1 14rem; font-weight: 700; font-size: .92rem; line-height: 1.35; color: var(--text); }
+    .funnel-count { flex: 0 0 auto; font-size: 1.08rem; font-weight: 800; white-space: nowrap; color: var(--text); }
+    .funnel-note {
+      font-size: .8rem; color: var(--muted); margin: .28rem 0 0;
+      line-height: 1.4; padding-left: 2.35rem;
     }
-    .funnel-tier-label {
-      display: inline-block; font-size: .62rem; font-weight: 800; letter-spacing: .06em;
-      text-transform: uppercase; opacity: .88; margin-bottom: .12rem;
+    .funnel-shape-wrap { margin: 0 auto .1rem; min-width: 8rem; }
+    .funnel-shape {
+      height: 30px;
+      clip-path: polygon(.45rem 0, calc(100% - .45rem) 0, calc(100% - .3rem) 100%, .3rem 100%);
     }
-    .funnel-tier-name { font-weight: 700; font-size: .86rem; line-height: 1.25; }
-    .funnel-tier-count { font-size: 1.2rem; font-weight: 800; margin-top: .12rem; line-height: 1.1; }
-    .funnel-tier-note { font-size: .72rem; opacity: .9; margin-top: .28rem; line-height: 1.35; }
+    .funnel-block:first-child .funnel-shape {
+      clip-path: polygon(.45rem 0, calc(100% - .45rem) 0, calc(100% - .25rem) 100%, .25rem 100%);
+      border-radius: 6px 6px 0 0;
+    }
+    .funnel-block:last-child .funnel-shape {
+      clip-path: polygon(.25rem 0, calc(100% - .25rem) 0, calc(100% - .45rem) 100%, .45rem 100%);
+      border-radius: 0 0 6px 6px;
+    }
     .funnel-bridge {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: .18rem 0; gap: .08rem;
+      padding: .35rem 0 .45rem; gap: .1rem;
     }
     .funnel-bridge-arrow { color: #94a3b8; font-size: .72rem; line-height: 1; }
     .funnel-bridge-pct {
-      font-size: .74rem; font-weight: 800; color: var(--accent);
+      font-size: .76rem; font-weight: 800; color: var(--accent);
       background: var(--accent-soft); border: 1px solid #bfdbfe;
-      border-radius: 999px; padding: .14rem .58rem; white-space: nowrap;
+      border-radius: 999px; padding: .16rem .62rem; white-space: nowrap;
+    }
+    @media (max-width: 560px) {
+      .funnel-note { padding-left: 0; margin-top: .35rem; }
+      .funnel-caption-main { gap: .35rem .55rem; }
+      .funnel-count { width: 100%; padding-left: 2.35rem; }
     }
     /* Cards */
     .compare { display: flex; flex-wrap: nowrap; gap: .85rem; overflow-x: auto; padding-bottom: .15rem; }
@@ -415,14 +429,18 @@ funnelEl.innerHTML = DATA.funnel_stages.map((s, i) => {
       <div class="funnel-bridge-pct">перехід ${convPct}</div>
     </div>` : '';
   const bg = funnelShades[Math.min(i, funnelShades.length - 1)];
-  const darkText = i < 2;
   return `${bridge}
-    <div class="funnel-tier" style="width:${widthPct}%">
-      <div class="funnel-tier-inner" style="background:${bg};color:${darkText ? '#0f172a' : '#fff'}">
-        <div class="funnel-tier-label">${s.label || ''}</div>
-        <div class="funnel-tier-name">${s.name}</div>
-        <div class="funnel-tier-count">${fmtN(s.guests)}</div>
-        <div class="funnel-tier-note">${s.note || ''}</div>
+    <div class="funnel-block">
+      <div class="funnel-caption">
+        <div class="funnel-caption-main">
+          <span class="funnel-code">${s.label || ''}</span>
+          <strong class="funnel-name">${s.name}</strong>
+          <span class="funnel-count">${fmtN(s.guests)}</span>
+        </div>
+        ${s.note ? `<p class="funnel-note">${s.note}</p>` : ''}
+      </div>
+      <div class="funnel-shape-wrap" style="width:${widthPct}%">
+        <div class="funnel-shape" style="background:${bg}" aria-hidden="true"></div>
       </div>
     </div>`;
 }).join('');

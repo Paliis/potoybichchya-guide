@@ -95,12 +95,14 @@
       color: var(--muted); font-weight: 700; margin-bottom: .5rem;
     }
     .section-ctx strong { color: var(--accent-dark); }
+    html { overflow-x: hidden; }
+    body { overflow-x: hidden; }
     body.embed { background: var(--bg); }
     body.embed .page-head,
     body.embed #glossary-section,
     body.embed #footer-note { display: none; }
     body.embed .section-ctx { display: block; }
-    body.embed .wrap { padding: .65rem 1rem 1.5rem; max-width: none; }
+    body.embed .wrap { padding: .65rem 1rem 1.5rem; max-width: 1180px; margin: 0 auto; }
     body.embed .hint { margin-bottom: .65rem; font-size: .84rem; }
     @media (max-width: 720px) {
       .wrap { padding-left: .7rem; padding-right: .7rem; }

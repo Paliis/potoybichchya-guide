@@ -14,7 +14,15 @@
       --formula-bg: #f8fafc; --shadow-sm: 0 1px 3px rgba(15,23,42,.06);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 15px; }
+    html { height: 100%; overflow-x: hidden; }
+    body {
+      margin: 0; min-height: 100%; overflow-x: hidden;
+      font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text);
+      line-height: 1.55; font-size: 15px;
+    }
+    /* всередині hub iframe: один скрол документа, контент у звичній ширині */
+    body.embed .wrap,
+    body.embed .page-head .wrap { max-width: 1180px; margin-left: auto; margin-right: auto; }
     .page-head {
       position: sticky; top: 0; z-index: 40;
       background: linear-gradient(to bottom, #fff 0%, var(--bg) 100%);
@@ -585,7 +593,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 (function initGuestLayout() {
   const embed = new URLSearchParams(location.search).get('embed') === '1' || window.self !== window.top;
   const ctx = document.getElementById('section-ctx');
-  if (!embed) {
+  if (embed) {
+    document.body.classList.add('embed');
+  } else {
     document.body.classList.add('standalone');
     const intro = document.getElementById('page-intro');
     if (intro) intro.hidden = false;

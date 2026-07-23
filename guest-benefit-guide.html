@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Потойбіччя — шлях / вигода гостя</title>
+  <style>
+    :root {
+      --bg: #f4f6f9; --card: #fff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+      --accent: #1d4ed8; --accent-dark: #1e3a8a; --accent-soft: #eff6ff;
+      --action: #1e3a8a; --reward: #15803d; --benefit: #b45309; --exit: #b91c1c;
+      --none: #e2e8f0; --weak: #bfdbfe; --mid: #60a5fa; --strong: #1d4ed8;
+      --shadow-sm: 0 1px 3px rgba(15,23,42,.06);
+    }
+    * { box-sizing: border-box; }
+    html { height: 100%; overflow-x: hidden; }
+    body {
+      margin: 0; min-height: 100%; overflow-x: hidden;
+      font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text);
+      line-height: 1.55; font-size: 15px;
+    }
+    body.embed .wrap,
+    body.embed .page-head .wrap { max-width: 1180px; margin-left: auto; margin-right: auto; }
+    .page-head {
+      position: sticky; top: 0; z-index: 40;
+      background: linear-gradient(to bottom, #fff 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm);
+      padding: .65rem 0 .75rem;
+    }
+    .page-head .wrap { max-width: 1180px; margin: 0 auto; padding: 0 1rem; }
+    .section-ctx {
+      font-size: .7rem; text-transform: uppercase; letter-spacing: .07em;
+      color: var(--muted); font-weight: 700; margin-bottom: .35rem;
+    }
+    .section-ctx strong { color: var(--accent-dark); }
+    h1 { margin: 0 0 .35rem; font-size: 1.35rem; letter-spacing: -.01em; }
+    .lede { margin: 0; color: var(--muted); font-size: .92rem; max-width: 42rem; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+    .seg-tabs {
+      display: flex; flex-wrap: wrap; gap: .35rem; margin: 1rem 0 .85rem;
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: .5rem .55rem; box-shadow: var(--shadow-sm);
+    }
+    .seg-btn {
+      border: 1px solid var(--border); background: #f8fafc; color: var(--text);
+      padding: .48rem .9rem; border-radius: 999px; cursor: pointer;
+      font-size: .82rem; font-weight: 700;
+    }
+    .seg-btn:hover:not(.active) { background: var(--accent-soft); border-color: #bfdbfe; }
+    .seg-btn.active {
+      background: linear-gradient(135deg, var(--accent) 0%, #2563eb 100%);
+      color: #fff; border-color: transparent;
+    }
+    section {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.15rem 1.3rem; margin-bottom: .9rem; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    h2 { margin: 0 0 .65rem; font-size: 1.05rem; color: var(--accent); }
+    .hint {
+      background: var(--accent-soft); border-left: 4px solid var(--accent);
+      padding: .7rem .95rem; border-radius: 0 8px 8px 0; font-size: .86rem; margin-bottom: .85rem;
+    }
+    .hint-warn { background: #fffbeb; border-left-color: var(--benefit); }
+    .hint-risk { background: #fef2f2; border-left-color: var(--exit); }
+    .flow-meta {
+      display: flex; flex-wrap: wrap; gap: .35rem 1rem; align-items: baseline;
+      margin: 0 0 .85rem; font-size: .86rem; color: var(--muted);
+    }
+    .flow-meta strong { color: var(--accent-dark); font-size: 1rem; }
+    /* Квадратний периметр: верх → право → низ → ліво */
+    .sq-scene {
+      position: relative;
+      width: min(100%, 1040px);
+      margin: .25rem auto 0;
+      aspect-ratio: 1;
+      max-height: min(90vh, 1040px);
+      background: #f8fafc;
+      border: 1px solid #e8edf3;
+      border-radius: 16px;
+      overflow: visible;
+    }
+    .sq-scene svg.sq-links {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; overflow: visible; z-index: 1;
+    }
+    .sq-hub {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(30%, 12rem); text-align: center; z-index: 2;
+      pointer-events: none;
+      padding: .75rem .6rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,.96);
+      border: 1px solid #dbe3ee;
+      box-shadow: 0 8px 22px rgba(15,23,42,.06);
+    }
+    .sq-hub .seg-name { font-weight: 800; font-size: clamp(.82rem, 1.7vw, 1rem); color: var(--accent-dark); line-height: 1.2; }
+    .sq-hub .seg-meta { font-size: .7rem; color: var(--muted); margin-top: .25rem; line-height: 1.35; }
+    .sq-hub .hub-value {
+      margin-top: .45rem; padding-top: .4rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .sq-hub .hub-value .uah-main {
+      font-weight: 800; font-size: clamp(.95rem, 2vw, 1.2rem);
+      color: var(--accent-dark); line-height: 1.15;
+    }
+    .sq-hub .hub-value .uah-unit { font-size: .68rem; font-weight: 650; color: var(--muted); }
+    .sq-hub .hub-value .uah-season { font-size: .62rem; color: var(--muted); margin-top: .15rem; }
+    .value-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .value-table th, .value-table td {
+      border-bottom: 1px solid var(--border); padding: .45rem .4rem; text-align: left;
+    }
+    .value-table th { color: var(--muted); font-size: .72rem; text-transform: uppercase; }
+    .value-table td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; }
+    .value-table .sub { display: block; font-size: .68rem; font-weight: 500; color: var(--muted); }
+    .value-table tr.total td { font-weight: 800; border-top: 2px solid #cbd5e1; }
+    .value-breakdown {
+      margin-top: .75rem; display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .5rem;
+    }
+    .value-chip {
+      border: 1px solid var(--border); border-radius: 10px; padding: .55rem .65rem;
+      background: #f8fafc; font-size: .8rem;
+    }
+    .value-chip strong { display: block; margin-bottom: .2rem; }
+    .value-chip .muted { color: var(--muted); font-size: .72rem; }
+    .sq-step {
+      position: absolute; z-index: 3;
+      width: clamp(7.6rem, 13.5vw, 9.4rem);
+      height: clamp(6.6rem, 12vw, 8rem);
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 12px;
+      padding: .48rem .55rem .5rem;
+      background: #fff;
+      box-shadow: 0 1px 0 rgba(255,255,255,.85) inset, 0 4px 12px rgba(15,23,42,.07);
+      border-left: 3.5px solid #94a3b8;
+      font-size: clamp(.72rem, 1.28vw, .84rem); line-height: 1.32;
+      overflow: hidden;
+    }
+    .sq-step.kind-action { border-left-color: #2563eb; background: linear-gradient(180deg, #f8faff 0%, #fff 100%); }
+    .sq-step.kind-reward { border-left-color: #16a34a; background: linear-gradient(180deg, #f4fdf7 0%, #fff 100%); }
+    .sq-step.kind-benefit { border-left-color: #d97706; background: linear-gradient(180deg, #fffaf3 0%, #fff 100%); }
+    .sq-step.kind-exit { border-left-color: #dc2626; background: linear-gradient(180deg, #fef4f4 0%, #fff 100%); }
+    .sq-step .stage-num {
+      font-size: .68rem; font-weight: 800; color: #64748b; margin-bottom: .18rem;
+      letter-spacing: .03em;
+    }
+    .sq-step .stage-label {
+      flex: 1 1 auto;
+      min-height: 0;
+      font-weight: 650; color: var(--text);
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      overflow: hidden;
+    }
+    .sq-step .stage-meta {
+      margin-top: auto;
+      padding-top: .2rem;
+      flex: 0 0 auto;
+    }
+    .sq-step .intensity { margin-left: 0; font-size: .65rem; padding: .04rem .32rem; }
+    .sq-end {
+      margin-top: .65rem;
+      display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch;
+      justify-content: center;
+    }
+    .sq-end .sq-step {
+      position: relative; left: auto; top: auto; transform: none;
+      width: auto; height: auto; min-height: 4.5rem;
+      flex: 1 1 240px; max-width: 440px;
+      font-size: .86rem;
+    }
+    .sq-end .sq-step .stage-label { -webkit-line-clamp: 4; line-clamp: 4; }
+    .sq-loop-badge {
+      flex: 1 1 200px; max-width: 440px;
+      display: flex; align-items: center; gap: .45rem;
+      padding: .55rem .75rem;
+      border-radius: 10px;
+      border: 1px dashed #94a3b8;
+      background: #fff;
+      color: #475569; font-size: .84rem; font-weight: 650;
+    }
+    @media (max-width: 720px) {
+      .sq-scene { max-height: none; width: 100%; }
+      .sq-step {
+        width: 6.6rem; height: 6rem;
+        font-size: .66rem; padding: .4rem .42rem;
+      }
+      .sq-step .stage-label { -webkit-line-clamp: 4; line-clamp: 4; }
+    }
+    .kind {
+      display: inline-block; font-size: .65rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .04em; border-radius: 4px; padding: .08rem .35rem; margin-right: .3rem;
+    }
+    .kind-action { background: #e0e7ff; color: var(--action); }
+    .kind-reward { background: #dcfce7; color: var(--reward); }
+    .kind-benefit { background: #ffedd5; color: var(--benefit); }
+    .kind-exit { background: #fee2e2; color: var(--exit); }
+    .intensity {
+      display: inline-block; font-size: .7rem; font-weight: 700; border-radius: 999px;
+      padding: .05rem .4rem; margin-left: .25rem; background: #f1f5f9; color: var(--muted);
+    }
+    .intensity-none { background: var(--none); }
+    .intensity-weak { background: var(--weak); color: var(--accent-dark); }
+    .intensity-mid { background: var(--mid); color: #fff; }
+    .intensity-strong { background: var(--strong); color: #fff; }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .compare-table th, .compare-table td {
+      border-bottom: 1px solid var(--border); padding: .45rem .4rem; text-align: left;
+    }
+    .compare-table th { color: var(--muted); font-size: .72rem; text-transform: uppercase; }
+    .cell {
+      display: inline-block; min-width: 3.6rem; text-align: center; font-weight: 700;
+      border-radius: 6px; padding: .2rem .35rem; font-size: .75rem;
+    }
+    .benefits-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: .55rem;
+    }
+    .benefit-card {
+      border: 1px solid var(--border); border-radius: 10px; padding: .7rem .8rem;
+      background: #f8fafc; font-size: .84rem;
+    }
+    .benefit-card .src { font-size: .72rem; color: var(--muted); margin-top: .35rem; }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: .5rem 1rem; font-size: .78rem; color: var(--muted);
+      margin: .5rem 0 0;
+    }
+    .footer {
+      margin-top: 1.25rem; font-size: .8rem; color: var(--muted);
+      border-top: 1px solid var(--border); padding-top: .85rem;
+    }
+    .footer a { color: var(--accent); font-weight: 600; }
+    .draft-tag {
+      font-size: .65rem; font-weight: 800; color: var(--benefit); text-transform: uppercase;
+      margin-left: .25rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <div class="wrap">
+      <div class="section-ctx">Economics Hub · <strong>Шлях / вигода гостя</strong> · не вартість для Silpo</div>
+      <h1>Шлях / вигода гостя в Потойбіччі</h1>
+      <p class="lede">Що гість отримує від гри й участі — і що його утримує. По сегментах: Автопілот, Casual, Активний, Хардкор. Окремо — додаткові бенефіти з балансу гри.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <nav class="seg-tabs" id="seg-tabs" aria-label="Сегменти гостя"></nav>
+
+    <div id="s0-risk" class="hint hint-risk" hidden>
+      <strong>Ризик Автопілоту:</strong> після онбордингу й першого використання СП — відвал; наступних ігрових СП немає. Луп у новий сезон не замикається.
+    </div>
+
+    <section>
+      <h2>Шлях сегмента <span id="loop-title"></span></h2>
+      <p class="hint">Шлях сегмента по квадрату. Бейдж — сила інтересу (немає / мін. / середнє / високе). Повний текст кроку — при наведенні.</p>
+      <div class="flow-meta" id="flow-meta"></div>
+      <div class="sq-scene" id="sq-scene" aria-label="Шлях гостя по квадрату">
+        <svg class="sq-links" id="sq-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="sq-hub">
+          <div class="seg-name" id="sq-seg-name"></div>
+          <div class="seg-meta" id="sq-seg-meta"></div>
+          <div class="hub-value" id="sq-hub-value"></div>
+        </div>
+        <div id="sq-nodes"></div>
+      </div>
+      <div class="sq-end" id="sq-end"></div>
+      <div class="legend" style="margin-top:.75rem">
+        <span><span class="kind kind-action">дія</span></span>
+        <span><span class="kind kind-reward">винагорода</span></span>
+        <span><span class="kind kind-benefit">бенефіт</span></span>
+        <span><span class="kind kind-exit">відвал</span></span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Очікувана вигода гостя <span class="draft-tag">окремий шар</span></h2>
+      <p class="hint">Головне — <strong>грн/міс</strong>. Сезон коротко поряд. Старт СП тут з сегментним % погашення (не середнє 2,85 на всіх F4). Ігрові СП — з балансу/лупів; призи — алокація T3. Вартість для Silpo — <a href="balance-guest-guide.html">економіка гостя</a>.</p>
+      <div style="overflow-x:auto">
+        <table class="value-table" id="value-compare-table"></table>
+      </div>
+      <h3 style="margin:1rem 0 .4rem;font-size:.95rem;color:var(--accent)">Розклад для обраного сегмента</h3>
+      <div class="value-breakdown" id="value-breakdown"></div>
+    </section>
+
+    <section>
+      <h2>Де розходяться сегменти</h2>
+      <p class="hint">Після спільного онбордингу (до використання СП). Шкала інтересу якісна (немає / мін. / середнє / високе) — без % гостей і без вартості для Silpo.</p>
+      <div style="overflow-x:auto">
+        <table class="compare-table" id="compare-table"></table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Ще з балансу гри <span class="draft-tag">окремий шар</span></h2>
+      <p class="hint hint-warn">Механіки, яких немає окремим кроком на піді вище. Релевантність для обраного сегмента — якісно.</p>
+      <div class="benefits-grid" id="benefits-grid"></div>
+    </section>
+
+    <p class="footer" id="page-footer"></p>
+  </div>
+
+<script>
+const DATA = {"meta":{"generated_by":"tools/guest_benefit_export.py","config":"docs/economics/guest-benefit-layer.yaml","source_miro":"Miro сегментні лупи Автопілот / Кежуал / Активний / Хардкорщик (2026-07)","balance_doc":"docs/product/game-balance-v10.md","glossary_doc":"docs/economics/funnel-glossary-business.md","note_uk":"Шар 1 = шлях сегментів (Miro). Шар 2 = бенефіти v10 (якісний інтерес). Шар 3 = очікувана вигода гостя грн/міс (guest_value; не вартість Silpo). Назви сегментів — як у словнику Hub.","label_uk":"Шлях / вигода гостя","stack_id":"guest_benefit","stack_version":"2026-07-13","stack_tier":1,"lifecycle":"current","depends_on":["game_balance_v10","balance_guest"]},"spine":[{"id":"join_play","label_uk":"Доєднався → зіграв у гру","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · онбординг / вхід"},{"id":"reward_ingame_1","label_uk":"Отримав ігрову нагороду","kind":"reward","loop_horizon":"onboarding","source_ref":"game-balance-v10 §5 квести / нагороди"},{"id":"daily_quest","label_uk":"Виконав денний квест","kind":"action","loop_horizon":"daily","source_ref":"game-balance-v10 §5 · денні квести"},{"id":"reward_ingame_2","label_uk":"Отримав ігрову винагороду","kind":"reward","loop_horizon":"daily","source_ref":"game-balance-v10 §5"},{"id":"leaderboard_onboarding","label_uk":"Просунувся в лідерборді й завершив онбординг","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · прогресія / онбординг"},{"id":"welcome_pack","label_uk":"Отримав велком-пак за завершення онбордингу","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 · сюжет онбординг (дар / старт)"},{"id":"sp_activate","label_uk":"Активація СП","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · funnel-glossary СП"},{"id":"sp_use","label_uk":"Використання СП","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · погашення в Сільпо"}],"segments":{"S0":{"label_uk":"Автопілот","label_miro":"Автопілот","from":"miro","steps":[{"id":"churn_no_more_sp","label_uk":"Відвал і не отримання наступних СП","kind":"exit","loop_horizon":"exit","intensity":"none","from":"miro"}],"path":[{"id":"join_play","label_uk":"Доєднався → зіграв у гру","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · онбординг / вхід"},{"id":"reward_ingame_1","label_uk":"Отримав ігрову нагороду","kind":"reward","loop_horizon":"onboarding","source_ref":"game-balance-v10 §5 квести / нагороди"},{"id":"daily_quest","label_uk":"Виконав денний квест","kind":"action","loop_horizon":"daily","source_ref":"game-balance-v10 §5 · денні квести"},{"id":"reward_ingame_2","label_uk":"Отримав ігрову винагороду","kind":"reward","loop_horizon":"daily","source_ref":"game-balance-v10 §5"},{"id":"leaderboard_onboarding","label_uk":"Просунувся в лідерборді й завершив онбординг","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · прогресія / онбординг"},{"id":"welcome_pack","label_uk":"Отримав велком-пак за завершення онбордингу","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 · сюжет онбординг (дар / старт)"},{"id":"sp_activate","label_uk":"Активація СП","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · funnel-glossary СП"},{"id":"sp_use","label_uk":"Використання СП","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · погашення в Сільпо"},{"id":"churn_no_more_sp","label_uk":"Відвал і не отримання наступних СП","kind":"exit","loop_horizon":"exit","intensity":"none","from":"miro"}],"closes_loop":false,"has_exit":true},"S1":{"label_uk":"Casual","label_miro":"Кежуал","from":"miro","steps":[{"id":"ongoing_quests","label_uk":"Подальші квести (тижневі, культові) і стеження за прогресом сезону","kind":"action","loop_horizon":"weekly","intensity":"weak","from":"miro","source_ref":"game-balance-v10 §5"},{"id":"ongoing_rewards","label_uk":"Отримання ігрових винагород","kind":"reward","loop_horizon":"weekly","intensity":"weak","from":"miro"},{"id":"competitions","label_uk":"Посередня участь у змаганнях","kind":"action","loop_horizon":"seasonal","intensity":"weak","from":"miro"},{"id":"paid_features","label_uk":"Мінімальне використання платних функцій","kind":"action","loop_horizon":"seasonal","intensity":"weak","from":"miro"},{"id":"cult_group","label_uk":"Можливе отримання групових переваг (перемога культу)","kind":"benefit","loop_horizon":"seasonal","intensity":"weak","from":"miro"},{"id":"new_season","label_uk":"Участь у новому сезоні","kind":"action","loop_horizon":"seasonal","intensity":"mid","from":"miro","closes_loop":true}],"path":[{"id":"join_play","label_uk":"Доєднався → зіграв у гру","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · онбординг / вхід"},{"id":"reward_ingame_1","label_uk":"Отримав ігрову нагороду","kind":"reward","loop_horizon":"onboarding","source_ref":"game-balance-v10 §5 квести / нагороди"},{"id":"daily_quest","label_uk":"Виконав денний квест","kind":"action","loop_horizon":"daily","source_ref":"game-balance-v10 §5 · денні квести"},{"id":"reward_ingame_2","label_uk":"Отримав ігрову винагороду","kind":"reward","loop_horizon":"daily","source_ref":"game-balance-v10 §5"},{"id":"leaderboard_onboarding","label_uk":"Просунувся в лідерборді й завершив онбординг","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · прогресія / онбординг"},{"id":"welcome_pack","label_uk":"Отримав велком-пак за завершення онбордингу","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 · сюжет онбординг (дар / старт)"},{"id":"sp_activate","label_uk":"Активація СП","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · funnel-glossary СП"},{"id":"sp_use","label_uk":"Використання СП","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · погашення в Сільпо"},{"id":"ongoing_quests","label_uk":"Подальші квести (тижневі, культові) і стеження за прогресом сезону","kind":"action","loop_horizon":"weekly","intensity":"weak","from":"miro","source_ref":"game-balance-v10 §5"},{"id":"ongoing_rewards","label_uk":"Отримання ігрових винагород","kind":"reward","loop_horizon":"weekly","intensity":"weak","from":"miro"},{"id":"competitions","label_uk":"Посередня участь у змаганнях","kind":"action","loop_horizon":"seasonal","intensity":"weak","from":"miro"},{"id":"paid_features","label_uk":"Мінімальне використання платних функцій","kind":"action","loop_horizon":"seasonal","intensity":"weak","from":"miro"},{"id":"cult_group","label_uk":"Можливе отримання групових переваг (перемога культу)","kind":"benefit","loop_horizon":"seasonal","intensity":"weak","from":"miro"},{"id":"new_season","label_uk":"Участь у новому сезоні","kind":"action","loop_horizon":"seasonal","intensity":"mid","from":"miro","closes_loop":true}],"closes_loop":true,"has_exit":false},"S2":{"label_uk":"Активний","label_miro":"Активний","from":"miro","steps":[{"id":"ongoing_quests","label_uk":"Подальші квести (тижневі, культові); прогрес сезону; помірний вплив на результат","kind":"action","loop_horizon":"weekly","intensity":"mid","from":"miro","source_ref":"game-balance-v10 §5"},{"id":"ongoing_rewards","label_uk":"Ігрові винагороди і (рідко) 1 СП на ~2 тижні","kind":"reward","loop_horizon":"weekly","intensity":"mid","from":"miro","source_ref":"game-balance-v10 §10"},{"id":"competitions","label_uk":"Активна участь у змаганнях","kind":"action","loop_horizon":"seasonal","intensity":"mid","from":"miro"},{"id":"raffle","label_uk":"Помірна ймовірність виграшу в розіграші","kind":"benefit","loop_horizon":"seasonal","intensity":"mid","from":"miro"},{"id":"paid_features","label_uk":"Середнє використання платних функцій","kind":"action","loop_horizon":"seasonal","intensity":"mid","from":"miro"},{"id":"level_prizes","label_uk":"Більше призів за прокачку рівня і можливі місця в лідерборді","kind":"benefit","loop_horizon":"seasonal","intensity":"mid","from":"miro","status":"draft","note_uk":"На дошці Miro позначено (?)"},{"id":"cult_group","label_uk":"Ймовірне отримання групових переваг (перемога культу)","kind":"benefit","loop_horizon":"seasonal","intensity":"mid","from":"miro"},{"id":"new_season","label_uk":"Участь у новому сезоні","kind":"action","loop_horizon":"seasonal","intensity":"strong","from":"miro","closes_loop":true}],"path":[{"id":"join_play","label_uk":"Доєднався → зіграв у гру","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · онбординг / вхід"},{"id":"reward_ingame_1","label_uk":"Отримав ігрову нагороду","kind":"reward","loop_horizon":"onboarding","source_ref":"game-balance-v10 §5 квести / нагороди"},{"id":"daily_quest","label_uk":"Виконав денний квест","kind":"action","loop_horizon":"daily","source_ref":"game-balance-v10 §5 · денні квести"},{"id":"reward_ingame_2","label_uk":"Отримав ігрову винагороду","kind":"reward","loop_horizon":"daily","source_ref":"game-balance-v10 §5"},{"id":"leaderboard_onboarding","label_uk":"Просунувся в лідерборді й завершив онбординг","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · прогресія / онбординг"},{"id":"welcome_pack","label_uk":"Отримав велком-пак за завершення онбордингу","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 · сюжет онбординг (дар / старт)"},{"id":"sp_activate","label_uk":"Активація СП","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · funnel-glossary СП"},{"id":"sp_use","label_uk":"Використання СП","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · погашення в Сільпо"},{"id":"ongoing_quests","label_uk":"Подальші квести (тижневі, культові); прогрес сезону; помірний вплив на результат","kind":"action","loop_horizon":"weekly","intensity":"mid","from":"miro","source_ref":"game-balance-v10 §5"},{"id":"ongoing_rewards","label_uk":"Ігрові винагороди і (рідко) 1 СП на ~2 тижні","kind":"reward","loop_horizon":"weekly","intensity":"mid","from":"miro","source_ref":"game-balance-v10 §10"},{"id":"competitions","label_uk":"Активна участь у змаганнях","kind":"action","loop_horizon":"seasonal","intensity":"mid","from":"miro"},{"id":"raffle","label_uk":"Помірна ймовірність виграшу в розіграші","kind":"benefit","loop_horizon":"seasonal","intensity":"mid","from":"miro"},{"id":"paid_features","label_uk":"Середнє використання платних функцій","kind":"action","loop_horizon":"seasonal","intensity":"mid","from":"miro"},{"id":"level_prizes","label_uk":"Більше призів за прокачку рівня і можливі місця в лідерборді","kind":"benefit","loop_horizon":"seasonal","intensity":"mid","from":"miro","status":"draft","note_uk":"На дошці Miro позначено (?)"},{"id":"cult_group","label_uk":"Ймовірне отримання групових переваг (перемога культу)","kind":"benefit","loop_horizon":"seasonal","intensity":"mid","from":"miro"},{"id":"new_season","label_uk":"Участь у новому сезоні","kind":"action","loop_horizon":"seasonal","intensity":"strong","from":"miro","closes_loop":true}],"closes_loop":true,"has_exit":false},"S3":{"label_uk":"Хардкор","label_miro":"Хардкорщик","from":"miro","steps":[{"id":"ongoing_quests","label_uk":"Завершення >80% квестів (тижневі, культові); великий вплив на результат сезону","kind":"action","loop_horizon":"weekly","intensity":"strong","from":"miro","source_ref":"game-balance-v10 §5"},{"id":"ongoing_rewards","label_uk":"Максимум спроб зібрати 1 СП на ~2 тижні (вища ймовірність)","kind":"reward","loop_horizon":"weekly","intensity":"strong","from":"miro","source_ref":"game-balance-v10 §10"},{"id":"competitions","label_uk":"Активна участь у змаганнях","kind":"action","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"raffle","label_uk":"Висока ймовірність виграшу в розіграші","kind":"benefit","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"paid_features","label_uk":"Високе використання платних функцій","kind":"action","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"level_prizes","label_uk":"Максимум призів за прокачку рівня і найбільша ймовірність місць у лідерборді","kind":"benefit","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"cult_group","label_uk":"Ймовірне отримання групових переваг (перемога культу)","kind":"benefit","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"new_season","label_uk":"Участь у новому сезоні","kind":"action","loop_horizon":"seasonal","intensity":"strong","from":"miro","closes_loop":true}],"path":[{"id":"join_play","label_uk":"Доєднався → зіграв у гру","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · онбординг / вхід"},{"id":"reward_ingame_1","label_uk":"Отримав ігрову нагороду","kind":"reward","loop_horizon":"onboarding","source_ref":"game-balance-v10 §5 квести / нагороди"},{"id":"daily_quest","label_uk":"Виконав денний квест","kind":"action","loop_horizon":"daily","source_ref":"game-balance-v10 §5 · денні квести"},{"id":"reward_ingame_2","label_uk":"Отримав ігрову винагороду","kind":"reward","loop_horizon":"daily","source_ref":"game-balance-v10 §5"},{"id":"leaderboard_onboarding","label_uk":"Просунувся в лідерборді й завершив онбординг","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 · прогресія / онбординг"},{"id":"welcome_pack","label_uk":"Отримав велком-пак за завершення онбордингу","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 · сюжет онбординг (дар / старт)"},{"id":"sp_activate","label_uk":"Активація СП","kind":"action","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · funnel-glossary СП"},{"id":"sp_use","label_uk":"Використання СП","kind":"benefit","loop_horizon":"onboarding","source_ref":"game-balance-v10 §10 · погашення в Сільпо"},{"id":"ongoing_quests","label_uk":"Завершення >80% квестів (тижневі, культові); великий вплив на результат сезону","kind":"action","loop_horizon":"weekly","intensity":"strong","from":"miro","source_ref":"game-balance-v10 §5"},{"id":"ongoing_rewards","label_uk":"Максимум спроб зібрати 1 СП на ~2 тижні (вища ймовірність)","kind":"reward","loop_horizon":"weekly","intensity":"strong","from":"miro","source_ref":"game-balance-v10 §10"},{"id":"competitions","label_uk":"Активна участь у змаганнях","kind":"action","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"raffle","label_uk":"Висока ймовірність виграшу в розіграші","kind":"benefit","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"paid_features","label_uk":"Високе використання платних функцій","kind":"action","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"level_prizes","label_uk":"Максимум призів за прокачку рівня і найбільша ймовірність місць у лідерборді","kind":"benefit","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"cult_group","label_uk":"Ймовірне отримання групових переваг (перемога культу)","kind":"benefit","loop_horizon":"seasonal","intensity":"strong","from":"miro"},{"id":"new_season","label_uk":"Участь у новому сезоні","kind":"action","loop_horizon":"seasonal","intensity":"strong","from":"miro","closes_loop":true}],"closes_loop":true,"has_exit":false}},"compare_dims":[{"id":"ongoing_quests","label_uk":"Поточні квести / сезон","levels":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"sp_biweekly","label_uk":"СП раз на ~2 тижні","levels":{"S0":"none","S1":"none","S2":"weak","S3":"strong"}},{"id":"competitions","label_uk":"Змагання","levels":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"raffle","label_uk":"Розіграш","levels":{"S0":"none","S1":"none","S2":"mid","S3":"strong"}},{"id":"paid_features","label_uk":"Платні функції","levels":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"level_prizes","label_uk":"Призи за рівень / лідерборд","levels":{"S0":"none","S1":"none","S2":"mid","S3":"strong"},"status":"draft"},{"id":"cult_group","label_uk":"Групові переваги (перемога культу)","levels":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"new_season","label_uk":"Новий сезон (замикає луп)","levels":{"S0":"none","S1":"mid","S2":"strong","S3":"strong"}}],"intensity_labels_uk":{"none":"немає","weak":"мін.","mid":"середнє","strong":"високе"},"balance_benefits":[{"id":"daily_login_zab","label_uk":"Щоденний вхід — серія ЗББ / квитки","source_ref":"game-balance-v10 §14 Щоденний вхід","segment_relevance":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"bondduels","label_uk":"Бондуелі — ЗББ, квитки, стрік","source_ref":"game-balance-v10 §3 Бондуелі","segment_relevance":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"lootboxes","label_uk":"Лутбокси / Таємна скриня","source_ref":"game-balance-v10 §9 Таємна скриня","segment_relevance":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"boosters","label_uk":"Бустери в грі","source_ref":"game-balance-v10 §7 Бустери","segment_relevance":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"shop_cosmetics","label_uk":"Магазин / Гардероб (косметика)","source_ref":"game-balance-v10 §6 Гардероб · §8 магазин","segment_relevance":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"sharshary","label_uk":"Шаршари — щоденний фарм бустерів","source_ref":"game-balance-v10 §15 Шаршари","segment_relevance":{"S0":"none","S1":"weak","S2":"mid","S3":"strong"}},{"id":"status_loyalty","label_uk":"Статуси та Відданість","source_ref":"game-balance-v10 §4 Статуси","segment_relevance":{"S0":"none","S1":"none","S2":"weak","S3":"strong"}},{"id":"cult_room_idol","label_uk":"Культова кімната / ідол / прокачка","source_ref":"game-balance-v10 · культи / прогресія","segment_relevance":{"S0":"weak","S1":"weak","S2":"mid","S3":"strong"}}],"guest_value":{"meta":{"unit_primary":"month","season_months":3.0,"f4_avg_starter_uah":2.85,"starter_if_used_uah":28.5,"f4_global_redemption":0.1,"note_uk":"Окремий шар вигоди гостя. 2,85 грн — середнє стартової СП на всіх F4 (економіка Silpo). Тут старт — з сегментним % погашення (draft у yaml); ігрові СП — з лупів/балансу; призи — алокація T3.","draft_flags":["starter_segment_redemption"]},"rates":{"ongoing_use_rate":0.25,"quest_completion_rate":0.25,"shock_scenario":"medium"},"t3_meta":{"season_fund_uah":3282741.5,"active_segments":["S2","S3"],"note":"частки сума=1; сезонний фонд = annual/4; на гостя = пул ÷ база"},"segments":{"S0":{"label_uk":"Автопілот","starter":{"if_used_uah":28.5,"p_redeem":0.08,"season_uah":2.28,"month_uah":0.76,"draft_segment_redemption":true},"ongoing_sp":{"month_uah":0.0,"season_uah":0.0,"activity_factor":0.0,"sp_count_season":1.0,"count_factor":0.1667,"use_rate":0.25,"sources":[{"id":"guaranteed_5pct","label_uk":"Культова 5% (онбординг)","month_uah_full":7.125,"month_uah":0.0,"discount_pct":0.05,"win_share_of_active":null},{"id":"cult_competition","label_uk":"Топ лідерборду","month_uah_full":2.7891,"month_uah":0.0,"discount_pct":0.15,"win_share_of_active":0.1666667},{"id":"cult_quests","label_uk":"Культові квести","month_uah_full":7.0875,"month_uah":0.0,"discount_pct":0.1,"win_share_of_active":null},{"id":"individual_activity","label_uk":"Фундук · Скриня · «Покупець»","month_uah_full":7.728,"month_uah":0.0,"discount_pct":0.08,"win_share_of_active":null}]},"t3_prizes":{"month_uah":2.1615,"season_uah":6.4844,"from_all_uah_season":6.4844,"from_active_uah_season":0.0},"total_month_uah":2.92,"total_season_uah":8.76},"S1":{"label_uk":"Casual","starter":{"if_used_uah":28.5,"p_redeem":0.3,"season_uah":8.55,"month_uah":2.85,"draft_segment_redemption":true},"ongoing_sp":{"month_uah":3.4362,"season_uah":10.3086,"activity_factor":0.2779,"sp_count_season":3.0,"count_factor":0.5,"use_rate":0.25,"sources":[{"id":"guaranteed_5pct","label_uk":"Культова 5% (онбординг)","month_uah_full":7.125,"month_uah":0.99,"discount_pct":0.05,"win_share_of_active":null},{"id":"cult_competition","label_uk":"Топ лідерборду","month_uah_full":2.7891,"month_uah":0.3875,"discount_pct":0.15,"win_share_of_active":0.1666667},{"id":"cult_quests","label_uk":"Культові квести","month_uah_full":7.0875,"month_uah":0.9848,"discount_pct":0.1,"win_share_of_active":null},{"id":"individual_activity","label_uk":"Фундук · Скриня · «Покупець»","month_uah_full":7.728,"month_uah":1.0738,"discount_pct":0.08,"win_share_of_active":null}]},"t3_prizes":{"month_uah":2.1615,"season_uah":6.4844,"from_all_uah_season":6.4844,"from_active_uah_season":0.0},"total_month_uah":8.45,"total_season_uah":25.34},"S2":{"label_uk":"Активний","starter":{"if_used_uah":28.5,"p_redeem":0.4,"season_uah":11.4,"month_uah":3.8,"draft_segment_redemption":true},"ongoing_sp":{"month_uah":18.4359,"season_uah":55.3077,"activity_factor":0.7455,"sp_count_season":6.0,"count_factor":1.0,"use_rate":0.25,"sources":[{"id":"guaranteed_5pct","label_uk":"Культова 5% (онбординг)","month_uah_full":7.125,"month_uah":5.3117,"discount_pct":0.05,"win_share_of_active":null},{"id":"cult_competition","label_uk":"Топ лідерборду","month_uah_full":2.7891,"month_uah":2.0793,"discount_pct":0.15,"win_share_of_active":0.1666667},{"id":"cult_quests","label_uk":"Культові квести","month_uah_full":7.0875,"month_uah":5.2837,"discount_pct":0.1,"win_share_of_active":null},{"id":"individual_activity","label_uk":"Фундук · Скриня · «Покупець»","month_uah_full":7.728,"month_uah":5.7612,"discount_pct":0.08,"win_share_of_active":null}]},"t3_prizes":{"month_uah":10.4749,"season_uah":31.4247,"from_all_uah_season":6.4844,"from_active_uah_season":24.9403},"total_month_uah":32.71,"total_season_uah":98.13},"S3":{"label_uk":"Хардкор","starter":{"if_used_uah":28.5,"p_redeem":0.45,"season_uah":12.825,"month_uah":4.275,"draft_segment_redemption":true},"ongoing_sp":{"month_uah":28.8512,"season_uah":86.5536,"activity_factor":1.0,"sp_count_season":7.0,"count_factor":1.1667,"use_rate":0.25,"sources":[{"id":"guaranteed_5pct","label_uk":"Культова 5% (онбординг)","month_uah_full":7.125,"month_uah":8.3125,"discount_pct":0.05,"win_share_of_active":null},{"id":"cult_competition","label_uk":"Топ лідерборду","month_uah_full":2.7891,"month_uah":3.254,"discount_pct":0.15,"win_share_of_active":0.1666667},{"id":"cult_quests","label_uk":"Культові квести","month_uah_full":7.0875,"month_uah":8.2688,"discount_pct":0.1,"win_share_of_active":null},{"id":"individual_activity","label_uk":"Фундук · Скриня · «Покупець»","month_uah_full":7.728,"month_uah":9.016,"discount_pct":0.08,"win_share_of_active":null}]},"t3_prizes":{"month_uah":10.4749,"season_uah":31.4247,"from_all_uah_season":6.4844,"from_active_uah_season":24.9403},"total_month_uah":43.6,"total_season_uah":130.8}}}};
+
+const SEG_ORDER = ['S0', 'S1', 'S2', 'S3'];
+let activeSeg = 'S0';
+
+function intensityLabel(level) {
+  const map = DATA.intensity_labels_uk || {};
+  return map[level] || level || '—';
+}
+
+function renderTabs() {
+  const nav = document.getElementById('seg-tabs');
+  nav.innerHTML = SEG_ORDER.map(id => {
+    const s = DATA.segments[id];
+    const cls = id === activeSeg ? 'seg-btn active' : 'seg-btn';
+    return `<button type="button" class="${cls}" data-seg="${id}">${id} · ${s.label_uk}</button>`;
+  }).join('');
+  nav.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeSeg = btn.dataset.seg;
+      renderAll();
+    });
+  });
+}
+
+/** По сторонах квадрата порівну, відцентровано на кожній грані (не на кутах). */
+function squarePositions(n, inset) {
+  if (inset == null) inset = 13;
+  var base = Math.floor(n / 4);
+  var rem = n % 4;
+  var perSide = [base, base, base, base];
+  for (var r = 0; r < rem; r++) perSide[r] += 1;
+  var lo = inset;
+  var hi = 100 - inset;
+  var span = hi - lo;
+  var out = [];
+  function along(count, mapFn) {
+    for (var i = 0; i < count; i++) {
+      var u = (i + 1) / (count + 1);
+      out.push(mapFn(u));
+    }
+  }
+  along(perSide[0], function (u) { return { x: lo + u * span, y: lo, side: 0 }; });
+  along(perSide[1], function (u) { return { x: hi, y: lo + u * span, side: 1 }; });
+  along(perSide[2], function (u) { return { x: hi - u * span, y: hi, side: 2 }; });
+  along(perSide[3], function (u) { return { x: lo, y: hi - u * span, side: 3 }; });
+  return out;
+}
+
+function stepCardHtml(step, num, isExit, stylePos) {
+  var inten = !isExit && step.intensity && step.intensity !== "none"
+    ? '<span class="intensity intensity-' + step.intensity + '">' + intensityLabel(step.intensity) + "</span>"
+    : "";
+  var title = (step.label_uk || "").replace(/"/g, "&quot;");
+  var kind = isExit ? "exit" : step.kind;
+  var pos = stylePos
+    ? ' style="left:' + stylePos.x.toFixed(2) + "%;top:" + stylePos.y.toFixed(2) + '%"'
+    : "";
+  return '<article class="sq-step kind-' + kind + '"' + pos + ' title="' + title + '">' +
+    '<div class="stage-num">' + (isExit ? "exit" : num) + "</div>" +
+    '<div class="stage-label">' + (step.label_uk || "") + "</div>" +
+    (inten ? '<div class="stage-meta">' + inten + "</div>" : "") +
+    "</article>";
+}
+
+function cardBoxPct(el, sceneRect) {
+  var r = el.getBoundingClientRect();
+  var left = ((r.left - sceneRect.left) / sceneRect.width) * 100;
+  var top = ((r.top - sceneRect.top) / sceneRect.height) * 100;
+  var right = ((r.right - sceneRect.left) / sceneRect.width) * 100;
+  var bottom = ((r.bottom - sceneRect.top) / sceneRect.height) * 100;
+  return {
+    left: left, top: top, right: right, bottom: bottom,
+    cx: (left + right) / 2, cy: (top + bottom) / 2
+  };
+}
+
+function faceToward(box, tx, ty) {
+  var dx = tx - box.cx;
+  var dy = ty - box.cy;
+  if (Math.abs(dx) * (box.bottom - box.top) >= Math.abs(dy) * (box.right - box.left)) {
+    return { x: dx >= 0 ? box.right : box.left, y: box.cy };
+  }
+  return { x: box.cx, y: dy >= 0 ? box.bottom : box.top };
+}
+
+/** Вихід/вхід по напрямку руху на стороні квадрата. */
+function sideExit(box, side) {
+  if (side === 0) return { x: box.right, y: box.cy };
+  if (side === 1) return { x: box.cx, y: box.bottom };
+  if (side === 2) return { x: box.left, y: box.cy };
+  return { x: box.cx, y: box.top };
+}
+function sideEnter(box, side) {
+  if (side === 0) return { x: box.left, y: box.cy };
+  if (side === 1) return { x: box.cx, y: box.top };
+  if (side === 2) return { x: box.right, y: box.cy };
+  return { x: box.cx, y: box.bottom };
+}
+
+function linkPath(boxA, sideA, boxB, sideB, inset) {
+  var lo = inset;
+  var hi = 100 - inset;
+  var corners = [
+    { x: hi, y: lo },
+    { x: hi, y: hi },
+    { x: lo, y: hi },
+    { x: lo, y: lo }
+  ];
+  if (sideA === sideB) {
+    var p0 = sideExit(boxA, sideA);
+    var p1 = sideEnter(boxB, sideB);
+    return "M " + p0.x.toFixed(2) + " " + p0.y.toFixed(2) +
+      " L " + p1.x.toFixed(2) + " " + p1.y.toFixed(2);
+  }
+  var corner = corners[sideA];
+  var a = faceToward(boxA, corner.x, corner.y);
+  var b = faceToward(boxB, corner.x, corner.y);
+  return "M " + a.x.toFixed(2) + " " + a.y.toFixed(2) +
+    " L " + corner.x.toFixed(2) + " " + corner.y.toFixed(2) +
+    " L " + b.x.toFixed(2) + " " + b.y.toFixed(2);
+}
+
+function linkDefs() {
+  return "<defs>" +
+    '<marker id="sqArr" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="2.2" markerHeight="2.2" orient="auto">' +
+    '<path d="M1.5 1.5 L8.5 5 L1.5 8.5" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    "</marker>" +
+    '<marker id="sqArrLoop" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="2.2" markerHeight="2.2" orient="auto">' +
+    '<path d="M1.5 1.5 L8.5 5 L1.5 8.5" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    "</marker>" +
+    "</defs>";
+}
+
+function drawSquareLinks(closesLoop, sides, inset) {
+  var scene = document.getElementById("sq-scene");
+  var svg = document.getElementById("sq-links");
+  if (!scene || !svg) return;
+  var cards = scene.querySelectorAll("#sq-nodes .sq-step");
+  if (cards.length < 2) {
+    svg.innerHTML = linkDefs();
+    return;
+  }
+  var sceneRect = scene.getBoundingClientRect();
+  if (sceneRect.width < 20) return;
+  var boxes = [];
+  for (var i = 0; i < cards.length; i++) boxes.push(cardBoxPct(cards[i], sceneRect));
+  var sw = Math.max(0.22, 180 / sceneRect.width);
+  var html = linkDefs();
+  function add(iFrom, iTo, loop) {
+    var d = linkPath(boxes[iFrom], sides[iFrom], boxes[iTo], sides[iTo], inset);
+    var col = loop ? "#64748b" : "#94a3b8";
+    var mk = loop ? "url(#sqArrLoop)" : "url(#sqArr)";
+    var dash = loop ? ' stroke-dasharray="1.1 0.9"' : "";
+    html += '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' +
+      sw.toFixed(3) + '" stroke-linecap="round" stroke-linejoin="round" marker-end="' + mk + '"' + dash + "/>";
+  }
+  for (var j = 0; j < boxes.length - 1; j++) add(j, j + 1, false);
+  if (closesLoop) add(boxes.length - 1, 0, true);
+  svg.innerHTML = html;
+}
+
+var _sqResizeBound = false;
+function bindSquareResize() {
+  if (_sqResizeBound) return;
+  _sqResizeBound = true;
+  window.addEventListener("resize", function () {
+    clearTimeout(window._sqResizeT);
+    window._sqResizeT = setTimeout(function () {
+      var s = DATA.segments[activeSeg];
+      if (!s) return;
+      var n = (s.path || []).filter(function (x) { return x.kind !== "exit"; }).length;
+      var inset = n > 12 ? 12 : 14;
+      var sides = squarePositions(n || 1, inset).map(function (p) { return p.side; });
+      drawSquareLinks(!!s.closes_loop, sides, inset);
+    }, 80);
+  });
+}
+
+function renderFlow() {
+  var seg = DATA.segments[activeSeg];
+  var path = seg.path || [];
+  document.getElementById("loop-title").textContent = "· " + activeSeg + " " + seg.label_uk;
+  var metaNote = seg.closes_loop
+    ? "замкнений луп через новий сезон"
+    : (seg.has_exit ? "після СП — відвал" : "");
+  document.getElementById("flow-meta").innerHTML =
+    "<strong>" + seg.label_uk + "</strong>" +
+    (metaNote ? "<span>" + metaNote + "</span>" : "");
+  document.getElementById("sq-seg-name").textContent = seg.label_uk;
+  document.getElementById("sq-seg-meta").textContent = metaNote || "";
+  renderHubValue();
+
+  var loopSteps = path.filter(function (s) { return s.kind !== "exit"; });
+  var exitSteps = path.filter(function (s) { return s.kind === "exit"; });
+  var n = loopSteps.length || 1;
+  var inset = n > 12 ? 12 : 14;
+  var positions = squarePositions(n, inset);
+  var sides = positions.map(function (p) { return p.side; });
+  var html = [];
+
+  for (var i = 0; i < loopSteps.length; i++) {
+    html.push(stepCardHtml(loopSteps[i], i + 1, false, positions[i]));
+  }
+  document.getElementById("sq-nodes").innerHTML = html.join("");
+  document.getElementById("sq-links").innerHTML = linkDefs();
+
+  var endHtml = [];
+  if (seg.closes_loop) {
+    endHtml.push(
+      '<div class="sq-loop-badge">' +
+      '<span aria-hidden="true">↻</span>' +
+      "<span>Остання → перша: новий сезон (замкнений луп)</span>" +
+      "</div>"
+    );
+  }
+  for (var e = 0; e < exitSteps.length; e++) {
+    endHtml.push(stepCardHtml(exitSteps[e], "exit", true, null));
+  }
+  document.getElementById("sq-end").innerHTML = endHtml.join("");
+
+  requestAnimationFrame(function () {
+    drawSquareLinks(!!seg.closes_loop, sides, inset);
+    requestAnimationFrame(function () {
+      drawSquareLinks(!!seg.closes_loop, sides, inset);
+      bindSquareResize();
+    });
+  });
+}
+
+function fmtUah(n) {
+  var x = Number(n);
+  if (!isFinite(x)) return "—";
+  return x.toLocaleString("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function pctLabel(p) {
+  var x = Number(p);
+  if (!isFinite(x)) return "—";
+  return (x * 100).toLocaleString("uk-UA", { maximumFractionDigits: 0 }) + "%";
+}
+
+function renderHubValue() {
+  var el = document.getElementById("sq-hub-value");
+  if (!el) return;
+  var gv = (DATA.guest_value || {}).segments || {};
+  var row = gv[activeSeg];
+  if (!row) {
+    el.innerHTML = "";
+    return;
+  }
+  el.innerHTML =
+    '<div class="uah-main">' + fmtUah(row.total_month_uah) +
+    ' <span class="uah-unit">грн/міс</span></div>' +
+    '<div class="uah-season">~' + fmtUah(row.total_season_uah) + " грн/сезон</div>";
+}
+
+function renderGuestValue() {
+  var gv = DATA.guest_value || {};
+  var segs = gv.segments || {};
+  var meta = gv.meta || {};
+  var table = document.getElementById("value-compare-table");
+  var breakdown = document.getElementById("value-breakdown");
+  if (!table || !breakdown) return;
+  if (!segs.S0) {
+    table.innerHTML = "";
+    breakdown.innerHTML = "<p class='hint'>Немає даних guest_value — запустіть export.</p>";
+    return;
+  }
+
+  var head = "<tr><th>Компонент</th>" + SEG_ORDER.map(function (id) {
+    var s = DATA.segments[id] || segs[id];
+    return "<th>" + id + "<br><span style='font-weight:600;text-transform:none'>" +
+      (s.label_uk || id) + "</span></th>";
+  }).join("") + "</tr>";
+
+  function rowCells(getter) {
+    return SEG_ORDER.map(function (id) {
+      var r = segs[id];
+      var month = getter(r);
+      var season = getter(r, true);
+      return "<td class='num'>" + fmtUah(month) +
+        "<span class='sub'>сезон " + fmtUah(season) + "</span></td>";
+    }).join("");
+  }
+
+  var body =
+    "<tr><td>Старт СП <span class='draft-tag'>seg. redemption</span></td>" +
+    rowCells(function (r, season) {
+      return season ? r.starter.season_uah : r.starter.month_uah;
+    }) + "</tr>" +
+    "<tr><td>Ігрові СП</td>" +
+    rowCells(function (r, season) {
+      return season ? r.ongoing_sp.season_uah : r.ongoing_sp.month_uah;
+    }) + "</tr>" +
+    "<tr><td>Призи T3</td>" +
+    rowCells(function (r, season) {
+      return season ? r.t3_prizes.season_uah : r.t3_prizes.month_uah;
+    }) + "</tr>" +
+    "<tr class='total'><td>Разом</td>" +
+    rowCells(function (r, season) {
+      return season ? r.total_season_uah : r.total_month_uah;
+    }) + "</tr>";
+
+  table.innerHTML = "<thead>" + head + "</thead><tbody>" + body + "</tbody>";
+
+  var row = segs[activeSeg];
+  var chips = [];
+  chips.push(
+    "<div class='value-chip'><strong>Старт СП</strong>" +
+    "<div>якщо погасив: " + fmtUah(row.starter.if_used_uah) + " грн</div>" +
+    "<div class='muted'>P(погасити) " + pctLabel(row.starter.p_redeem) +
+    " → E " + fmtUah(row.starter.month_uah) + " грн/міс</div></div>"
+  );
+  chips.push(
+    "<div class='value-chip'><strong>Ігрові СП</strong>" +
+    "<div>" + fmtUah(row.ongoing_sp.month_uah) + " грн/міс</div>" +
+    "<div class='muted'>активність ×" + row.ongoing_sp.activity_factor +
+    " · use " + pctLabel(row.ongoing_sp.use_rate) +
+    " · до " + row.ongoing_sp.sp_count_season + " СП/сезон</div></div>"
+  );
+  (row.ongoing_sp.sources || []).forEach(function (src) {
+    chips.push(
+      "<div class='value-chip'><strong>" + src.label_uk + "</strong>" +
+      "<div>" + fmtUah(src.month_uah) + " грн/міс</div>" +
+      (src.win_share_of_active != null
+        ? "<div class='muted'>win share " + pctLabel(src.win_share_of_active) + "</div>"
+        : "") +
+      "</div>"
+    );
+  });
+  chips.push(
+    "<div class='value-chip'><strong>Призи T3</strong>" +
+    "<div>" + fmtUah(row.t3_prizes.month_uah) + " грн/міс</div>" +
+    "<div class='muted'>алокація фонду сезону</div></div>"
+  );
+  chips.push(
+    "<div class='value-chip'><strong>Разом</strong>" +
+    "<div>" + fmtUah(row.total_month_uah) + " грн/міс</div>" +
+    "<div class='muted'>сезон ~" + fmtUah(row.total_season_uah) + " грн · " +
+    "F4-середнє старту " + fmtUah(meta.f4_avg_starter_uah) + " грн</div></div>"
+  );
+  breakdown.innerHTML = chips.join("");
+}
+
+function renderCompare() {
+  const labels = DATA.intensity_labels_uk || {};
+  const dims = DATA.compare_dims || [];
+  const head = `<tr><th>Вимір</th>${SEG_ORDER.map(id => {
+    const s = DATA.segments[id];
+    return `<th>${id}<br><span style="font-weight:600;text-transform:none">${s.label_uk}</span></th>`;
+  }).join('')}</tr>`;
+  const rows = dims.map(d => {
+    const draft = d.status === 'draft' ? ' <span class="draft-tag">draft</span>' : '';
+    const cells = SEG_ORDER.map(id => {
+      const lv = (d.levels || {})[id] || 'none';
+      return `<td><span class="cell intensity-${lv}">${labels[lv] || lv}</span></td>`;
+    }).join('');
+    return `<tr><td>${d.label_uk}${draft}</td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('compare-table').innerHTML = `<thead>${head}</thead><tbody>${rows}</tbody>`;
+}
+
+function renderBenefits() {
+  const items = DATA.balance_benefits || [];
+  const grid = document.getElementById('benefits-grid');
+  grid.innerHTML = items.map(b => {
+    const lv = (b.segment_relevance || {})[activeSeg] || 'none';
+    return `<div class="benefit-card">
+      <div><strong>${b.label_uk}</strong>
+        <span class="intensity intensity-${lv}">${intensityLabel(lv)}</span>
+      </div>
+      <div class="src">${b.source_ref || ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFooter() {
+  document.getElementById('page-footer').innerHTML =
+    `Вартість для Silpo — окремо: <a href="balance-guest-guide.html">економіка гостя</a>.`;
+}
+
+function renderAll() {
+  if (!DATA.segments) return;
+  renderTabs();
+  document.getElementById('s0-risk').hidden = activeSeg !== 'S0';
+  renderFlow();
+  renderGuestValue();
+  renderCompare();
+  renderBenefits();
+  renderFooter();
+}
+
+if (new URLSearchParams(location.search).get('embed') === '1') {
+  document.body.classList.add('embed');
+}
+renderAll();
+</script>
+</body>
+</html>

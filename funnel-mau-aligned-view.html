@@ -340,29 +340,11 @@ function rowMark(i, r) {
   return '';
 }
 
-function xmlEsc(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function cellText(v) {
-  return `<Cell><Data ss:Type="String">${xmlEsc(v)}</Data></Cell>`;
-}
-
-function cellNum(v) {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return cellText(v);
-  return `<Cell><Data ss:Type="Number">${n}</Data></Cell>`;
-}
-
 function exportTableExcel(rows) {
   const headers = [
     'Місяць',
     'Мітка',
-    'Зайшли в гру (F1 · гостей)',
+    'Зайшли в гру (F1 гостей)',
     '% від VR (F1)',
     'Нові: стартовий екран (F3)',
     'Нові: обрали культ (F4)',
@@ -372,36 +354,41 @@ function exportTableExcel(rows) {
     'Повернулись активні',
     'Разом активні',
   ];
-  const headerRow = `<Row>${headers.map(cellText).join('')}</Row>`;
-  const dataRows = rows.map((r, i) => `<Row>${[
-    cellText(humanMonth(r.label)),
-    cellText(rowMark(i, r)),
-    cellNum(r.f1_pg_guests),
-    cellNum(Number((r.f1_pg_rate * 100).toFixed(2))),
-    cellNum(r.f3_new),
-    cellNum(r.f5_new),
-    cellNum(r.mktg_retained),
-    cellNum(r.mktg_mau),
-    cellNum(r.econ_retained),
-    cellNum(r.econ_mau),
-  ].join('')}</Row>`).join('');
 
-  const xml =
-    `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<?mso-application progid="Excel.Sheet"?>\n` +
-    `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n` +
-    ` xmlns:o="urn:schemas-microsoft-com:office:office"\n` +
-    ` xmlns:x="urn:schemas-microsoft-com:office:excel"\n` +
-    ` xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n` +
-    `<Worksheet ss:Name="Гості по місяцях">\n` +
-    `<Table>\n${headerRow}\n${dataRows}\n</Table>\n` +
-    `</Worksheet>\n</Workbook>`;
+  function csvCell(v) {
+    const s = String(v ?? '');
+    if (/[;"\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+  }
 
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const lines = [headers.map(csvCell).join(';')];
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const f4 = Number(r.f4_new);
+    const f4Val = Number.isFinite(f4) ? f4 : Math.round(Number(r.f3_new || 0) * 0.9);
+    lines.push([
+      humanMonth(r.label),
+      rowMark(i, r),
+      Number(r.f1_pg_guests) || 0,
+      Number((Number(r.f1_pg_rate || 0) * 100).toFixed(2)),
+      Number(r.f3_new) || 0,
+      f4Val,
+      Number(r.f5_new) || 0,
+      Number(r.mktg_retained) || 0,
+      Number(r.mktg_mau) || 0,
+      Number(r.econ_retained) || 0,
+      Number(r.econ_mau) || 0,
+    ].map(csvCell).join(';'));
+  }
+
+  // UTF-8 BOM + ; — український Excel відкриває всі колонки коректно
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], {
+    type: 'text/csv;charset=utf-8',
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'potoybichchya-gosti-po-misyacyah-2026-2028.xls';
+  a.download = 'potoybichchya-gosti-po-misyacyah-2026-2028.csv';
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -436,7 +423,8 @@ function renderFormula(meta) {
   document.getElementById('formula').innerHTML = `
     <div class="formula-title">Як рахуємо кожен місяць</div>
     <div class="formula-eq"><strong>Нові в охопленні</strong> = гості VR × «зайшли в гру» × 75%</div>
-    <div class="formula-eq"><strong>Нові активні</strong> = нові в охопленні × 90% (культ) × 26% (грають)</div>
+    <div class="formula-eq"><strong>Нові в культі (F4)</strong> = нові в охопленні × 90%</div>
+    <div class="formula-eq"><strong>Нові активні</strong> = нові в культі × 26% (грають)</div>
     <div class="formula-eq"><strong>Разом охоплення</strong> = нові F3 + ${ret}% × минулий місяць</div>
     <div class="formula-eq"><strong>Разом активні</strong> = нові F5 + ${ret}% × минулий місяць</div>
     <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">

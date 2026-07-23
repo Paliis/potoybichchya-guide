@@ -149,7 +149,8 @@
         <thead>
           <tr>
             <th>Місяць</th>
-            <th class="num">Зайшли в гру<span class="code">F1 · % від VR</span></th>
+            <th class="num">Зайшли в гру<span class="code">F1 · гостей</span></th>
+            <th class="num">% від VR<span class="code">F1</span></th>
             <th class="num">Нові: стартовий екран<span class="code">F3</span></th>
             <th class="num">Нові: активні<span class="code">F5 = S2+S3</span></th>
             <th class="num">Повернулись<span class="code">охоплення</span></th>
@@ -167,7 +168,7 @@
     <h2>Терміни</h2>
     <dl class="glossary">
       <dt>Зайшли в Потойбіччя</dt>
-      <dd>Відкрили гру з застосунку Сільпо. Частка змінюється по місяцях.</dd>
+      <dd>Відкрили гру з застосунку Сільпо (<strong>F1</strong> · гостей і % від VR). Частка змінюється по місяцях.</dd>
       <dt>Охоплення</dt>
       <dd>Пройшли стартовий екран (+ хто повернувся) — для партнерів і медіа.</dd>
       <dt>Активні</dt>
@@ -210,26 +211,34 @@ function monthShort(label) {
 }
 
 function renderKpis(rows, meta) {
-  const oct = rows[0], nov = rows[1];
+  const m0 = rows[0], m1 = rows[1];
   const anchor = meta.anchor_launch || {};
   const retPct = Math.round((meta.retention_m1 || 0.07) * 100);
+  const launchLbl = humanMonth(m0.label);
+  const nextLbl = humanMonth(m1.label);
   document.getElementById('kpis').innerHTML = [
     {
-      lbl: 'Жовтень 2026 · охоплення (F3)',
-      val: fmt(oct.mktg_mau),
-      note: 'Перший місяць запуску',
+      lbl: launchLbl + ' · зайшли в гру (F1)',
+      val: fmt(m0.f1_pg_guests),
+      note: pct(m0.f1_pg_rate) + ' від VR · перший місяць запуску',
       cls: 'mkt'
     },
     {
-      lbl: 'Жовтень 2026 · активні (F5)',
-      val: fmt(oct.econ_mau),
+      lbl: launchLbl + ' · охоплення (F3)',
+      val: fmt(m0.mktg_mau),
+      note: 'Стартовий екран',
+      cls: 'mkt'
+    },
+    {
+      lbl: launchLbl + ' · активні (F5)',
+      val: fmt(m0.econ_mau),
       note: 'Збігається з гайдом: ' + fmt(anchor.f5_pp_active || 0),
       cls: 'econ ok'
     },
     {
-      lbl: 'Листопад · активні разом',
-      val: fmt(nov.econ_mau),
-      note: fmt(nov.f5_new) + ' нових + ' + fmt(nov.econ_retained) + ' повернулись',
+      lbl: nextLbl + ' · активні разом',
+      val: fmt(m1.econ_mau),
+      note: fmt(m1.f5_new) + ' нових + ' + fmt(m1.econ_retained) + ' повернулись',
       cls: 'econ'
     },
     {
@@ -311,6 +320,7 @@ function renderTable(rows) {
     const cls = i === 0 ? 'row-launch' : (r.month_index % 3 === 0 && i > 0 ? 'row-season' : '');
     return `<tr class="${cls}">
       <td>${humanMonth(r.label)}${rowTag(i, r)}</td>
+      <td class="num"><strong>${fmt(r.f1_pg_guests)}</strong></td>
       <td class="num">${pct(r.f1_pg_rate)}</td>
       <td class="num">${fmt(r.f3_new)}</td>
       <td class="num">${fmt(r.f5_new)}</td>

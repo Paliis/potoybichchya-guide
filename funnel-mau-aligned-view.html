@@ -90,6 +90,19 @@
       padding: 14px; border-radius: 8px; font-size: .88rem; margin-bottom: 1rem;
     }
     .table-wrap { overflow-x: auto; }
+    .sec-head {
+      display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
+      gap: .65rem 1rem; margin-bottom: .35rem;
+    }
+    .sec-head h2 { margin: 0; }
+    .btn-export {
+      flex: 0 0 auto; border: 1px solid #bfdbfe; background: var(--accent-soft);
+      color: var(--accent-dark); font-size: .78rem; font-weight: 700;
+      padding: .42rem .75rem; border-radius: 8px; cursor: pointer;
+      font-family: inherit; white-space: nowrap;
+    }
+    .btn-export:hover { background: #dbeafe; border-color: #93c5fd; }
+    .btn-export:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
     .section-ctx {
       display: none; font-size: .7rem; text-transform: uppercase; letter-spacing: .07em;
       color: var(--muted); font-weight: 700; margin-bottom: .5rem;
@@ -142,7 +155,12 @@
   </section>
 
   <section>
-    <h2>Таблиця: листопад 2026 → грудень 2028</h2>
+    <div class="sec-head">
+      <h2>Таблиця: листопад 2026 → грудень 2028</h2>
+      <button type="button" class="btn-export" id="btn-export-excel" aria-label="Експорт таблиці в Excel">
+        Експорт у Excel
+      </button>
+    </div>
     <p class="sec-desc">Помісячна розкладка — для звірки з гайдом. Підсвічено: запуск і старт кожного нового сезону.</p>
     <div class="table-wrap">
       <table class="simple" id="detail-table">
@@ -313,9 +331,85 @@ function rowsThroughYear(rows, year) {
   return end >= 0 ? rows.slice(0, end + 1) : rows.filter(r => r.year <= year);
 }
 
+let _exportRows = [];
+
+function rowMark(i, r) {
+  if (i === 0) return 'запуск';
+  if (r.month_index % 3 === 0) return 'новий сезон';
+  return '';
+}
+
+function xmlEsc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function cellText(v) {
+  return `<Cell><Data ss:Type="String">${xmlEsc(v)}</Data></Cell>`;
+}
+
+function cellNum(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return cellText(v);
+  return `<Cell><Data ss:Type="Number">${n}</Data></Cell>`;
+}
+
+function exportTableExcel(rows) {
+  const headers = [
+    'Місяць',
+    'Мітка',
+    'Зайшли в гру (F1 · гостей)',
+    '% від VR (F1)',
+    'Нові: стартовий екран (F3)',
+    'Нові: активні (F5 = S2+S3)',
+    'Повернулись охоплення',
+    'Разом охоплення',
+    'Повернулись активні',
+    'Разом активні',
+  ];
+  const headerRow = `<Row>${headers.map(cellText).join('')}</Row>`;
+  const dataRows = rows.map((r, i) => `<Row>${[
+    cellText(humanMonth(r.label)),
+    cellText(rowMark(i, r)),
+    cellNum(r.f1_pg_guests),
+    cellNum(Number((r.f1_pg_rate * 100).toFixed(2))),
+    cellNum(r.f3_new),
+    cellNum(r.f5_new),
+    cellNum(r.mktg_retained),
+    cellNum(r.mktg_mau),
+    cellNum(r.econ_retained),
+    cellNum(r.econ_mau),
+  ].join('')}</Row>`).join('');
+
+  const xml =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<?mso-application progid="Excel.Sheet"?>\n` +
+    `<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n` +
+    ` xmlns:o="urn:schemas-microsoft-com:office:office"\n` +
+    ` xmlns:x="urn:schemas-microsoft-com:office:excel"\n` +
+    ` xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n` +
+    `<Worksheet ss:Name="Гості по місяцях">\n` +
+    `<Table>\n${headerRow}\n${dataRows}\n</Table>\n` +
+    `</Worksheet>\n</Workbook>`;
+
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'potoybichchya-gosti-po-misyacyah-2026-2028.xls';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 function renderTable(rows) {
-  const tb = document.querySelector('#detail-table tbody');
   const slice = rowsThroughYear(rows, 2028);
+  _exportRows = slice;
+  const tb = document.querySelector('#detail-table tbody');
   tb.innerHTML = slice.map((r, i) => {
     const cls = i === 0 ? 'row-launch' : (r.month_index % 3 === 0 && i > 0 ? 'row-season' : '');
     return `<tr class="${cls}">
@@ -364,6 +458,12 @@ async function init() {
     renderChart(data.months);
     renderTable(data.months);
     renderFormula(data.meta);
+    const btn = document.getElementById('btn-export-excel');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        if (_exportRows.length) exportTableExcel(_exportRows);
+      });
+    }
     window.addEventListener('resize', () => renderChart(data.months));
   } catch (e) {
     document.querySelector('.wrap').insertAdjacentHTML('afterbegin',

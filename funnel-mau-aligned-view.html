@@ -170,6 +170,7 @@
             <th class="num">Зайшли в гру<span class="code">F1 · гостей</span></th>
             <th class="num">% від VR<span class="code">F1</span></th>
             <th class="num">Нові: стартовий екран<span class="code">F3</span></th>
+            <th class="num">Нові: обрали культ<span class="code">F4</span></th>
             <th class="num">Нові: активні<span class="code">F5 = S2+S3</span></th>
             <th class="num">Повернулись<span class="code">охоплення</span></th>
             <th class="num">Разом охоплення</th>
@@ -364,6 +365,7 @@ function exportTableExcel(rows) {
     'Зайшли в гру (F1 · гостей)',
     '% від VR (F1)',
     'Нові: стартовий екран (F3)',
+    'Нові: обрали культ (F4)',
     'Нові: активні (F5 = S2+S3)',
     'Повернулись охоплення',
     'Разом охоплення',
@@ -417,6 +419,7 @@ function renderTable(rows) {
       <td class="num"><strong>${fmt(r.f1_pg_guests)}</strong></td>
       <td class="num">${pct(r.f1_pg_rate)}</td>
       <td class="num">${fmt(r.f3_new)}</td>
+      <td class="num">${fmt(r.f4_new)}</td>
       <td class="num">${fmt(r.f5_new)}</td>
       <td class="num">${fmt(r.mktg_retained)}</td>
       <td class="num"><strong>${fmt(r.mktg_mau)}</strong></td>

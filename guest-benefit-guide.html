@@ -428,23 +428,34 @@ function squareInset(n) {
   return 16;
 }
 
-function exitBranchPos(lastPos) {
-  /* Картка ~11% ширини сцени — offset має бути більший, інакше exit лягає на останній крок. */
-  var d = 14.5;
-  var tip = 5.5;
-  if (lastPos.side === 0) {
-    return { x: lastPos.x, y: Math.max(2.4, lastPos.y - d) };
+function findUseSpIndex(loopSteps) {
+  for (var i = 0; i < loopSteps.length; i++) {
+    var id = loopSteps[i].id || "";
+    var lab = loopSteps[i].label_uk || "";
+    if (id === "use_sp" || lab.indexOf("Використання СП") !== -1) return i;
   }
-  if (lastPos.side === 1) {
-    return { x: Math.min(97.6, lastPos.x + d), y: lastPos.y };
+  return loopSteps.length ? loopSteps.length - 1 : -1;
+}
+
+/** Exit чітко під карткою «Використання СП»; на бічних гранях трохи назовні, щоб не накрити сусіда. */
+function exitUnderAnchor(anchor) {
+  var gap = 10.8;
+  if (!anchor) return { x: 50, y: 92 };
+  if (anchor.side === 0) {
+    return { x: anchor.x, y: Math.max(2.5, anchor.y - gap) };
   }
-  if (lastPos.side === 2) {
-    return { x: lastPos.x, y: Math.min(97.6, lastPos.y + d) };
+  if (anchor.side === 1) {
+    return {
+      x: Math.min(97.5, anchor.x + gap * 0.9),
+      y: Math.min(97.5, anchor.y + gap * 0.55)
+    };
   }
-  /* Ліва грань: назовні ліворуч + трохи вгору (від наступного/попереднього на стороні). */
+  if (anchor.side === 2) {
+    return { x: anchor.x, y: Math.min(97.5, anchor.y + gap) };
+  }
   return {
-    x: Math.max(2.4, lastPos.x - d),
-    y: Math.max(2.4, lastPos.y - tip)
+    x: Math.max(2.5, anchor.x - gap * 0.9),
+    y: Math.min(97.5, anchor.y + gap * 0.55)
   };
 }
 
@@ -560,7 +571,7 @@ function linkDefsPx() {
     "</defs>";
 }
 
-function drawSquareLinks(closesLoop, sides, inset) {
+function drawSquareLinks(closesLoop, sides, inset, exitFromIdx) {
   var scene = document.getElementById("sq-scene");
   var svg = document.getElementById("sq-links");
   if (!scene || !svg) return;
@@ -592,7 +603,10 @@ function drawSquareLinks(closesLoop, sides, inset) {
   for (var j = 0; j < boxes.length - 1; j++) add(j, j + 1, false);
   if (closesLoop && boxes.length > 1) add(boxes.length - 1, 0, true);
   if (exitCard && boxes.length) {
-    var from = boxes[boxes.length - 1];
+    var fromIdx = (exitFromIdx != null && exitFromIdx >= 0 && exitFromIdx < boxes.length)
+      ? exitFromIdx
+      : (boxes.length - 1);
+    var from = boxes[fromIdx];
     var to = cardBoxPx(exitCard, sceneRect);
     var a = faceToward(from, to.cx, to.cy);
     var b = faceToward(to, from.cx, from.cy);
@@ -615,8 +629,9 @@ function bindSquareResize() {
       if (!s) return;
       var n = (s.path || []).filter(function (x) { return x.kind !== "exit"; }).length;
       var inset = squareInset(n || 1);
+      var loopOnly = (s.path || []).filter(function (x) { return x.kind !== "exit"; });
       var sides = squarePositions(n || 1, inset).map(function (p) { return p.side; });
-      drawSquareLinks(!!s.closes_loop, sides, inset);
+      drawSquareLinks(!!s.closes_loop, sides, inset, findUseSpIndex(loopOnly));
     }, 80);
   });
 }
@@ -647,7 +662,9 @@ function renderFlow() {
     html.push(stepCardHtml(loopSteps[i], i + 1, false, positions[i]));
   }
   if (exitSteps.length && positions.length) {
-    var exPos = exitBranchPos(positions[positions.length - 1]);
+    var useIdx = findUseSpIndex(loopSteps);
+    var anchor = positions[useIdx >= 0 ? useIdx : positions.length - 1];
+    var exPos = exitUnderAnchor(anchor);
     html.push(stepCardHtml(exitSteps[0], "exit", true, exPos));
   }
   document.getElementById("sq-nodes").innerHTML = html.join("");
@@ -664,10 +681,11 @@ function renderFlow() {
   }
   document.getElementById("sq-end").innerHTML = endHtml.join("");
 
+  var exitFrom = findUseSpIndex(loopSteps);
   requestAnimationFrame(function () {
-    drawSquareLinks(!!seg.closes_loop, sides, inset);
+    drawSquareLinks(!!seg.closes_loop, sides, inset, exitFrom);
     requestAnimationFrame(function () {
-      drawSquareLinks(!!seg.closes_loop, sides, inset);
+      drawSquareLinks(!!seg.closes_loop, sides, inset, exitFrom);
       bindSquareResize();
     });
   });
@@ -713,9 +731,8 @@ function renderHubValue() {
   function msPair(month, season) {
     return fmtUah(month) +
       '<span class="casc-unit">/міс</span>' +
-      '<span class="casc-slash">\\</span>' +
-      '<span class="casc-season">' + fmtUah(season) + "</span>" +
-      '<span class="casc-unit">/сезон</span>';
+      ' <span class="casc-season">(' + fmtUah(season) +
+      '<span class="casc-unit">/сезон</span>)</span>';
   }
   el.innerHTML =
     '<div class="uah-hero">' + fmtUah(monthTotal) +

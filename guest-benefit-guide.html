@@ -73,7 +73,7 @@
     /* Квадратний периметр: верх → право → низ → ліво */
     .sq-wrap {
       margin: .4rem auto 0;
-      padding: .4rem;
+      padding: .85rem 1.1rem 1rem;
       width: min(100%, 1120px);
       box-sizing: border-box;
     }
@@ -426,11 +426,23 @@ function squareInset(n) {
 }
 
 function exitBranchPos(lastPos) {
-  var d = 7.2;
-  if (lastPos.side === 0) return { x: lastPos.x, y: Math.max(3.2, lastPos.y - d) };
-  if (lastPos.side === 1) return { x: Math.min(96.8, lastPos.x + d), y: lastPos.y };
-  if (lastPos.side === 2) return { x: lastPos.x, y: Math.min(96.8, lastPos.y + d) };
-  return { x: Math.max(3.2, lastPos.x - d), y: lastPos.y };
+  /* Картка ~11% ширини сцени — offset має бути більший, інакше exit лягає на останній крок. */
+  var d = 14.5;
+  var tip = 5.5;
+  if (lastPos.side === 0) {
+    return { x: lastPos.x, y: Math.max(2.4, lastPos.y - d) };
+  }
+  if (lastPos.side === 1) {
+    return { x: Math.min(97.6, lastPos.x + d), y: lastPos.y };
+  }
+  if (lastPos.side === 2) {
+    return { x: lastPos.x, y: Math.min(97.6, lastPos.y + d) };
+  }
+  /* Ліва грань: назовні ліворуч + трохи вгору (від наступного/попереднього на стороні). */
+  return {
+    x: Math.max(2.4, lastPos.x - d),
+    y: Math.max(2.4, lastPos.y - tip)
+  };
 }
 
 function squarePositions(n, inset) {

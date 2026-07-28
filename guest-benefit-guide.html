@@ -24,6 +24,9 @@
     }
     body.embed .wrap,
     body.embed .page-head .wrap { max-width: 1180px; margin-left: auto; margin-right: auto; }
+    body.nested .page-head { display: none; }
+    body.nested .footer { display: none; }
+    body.nested .wrap { padding-top: .35rem; }
     .page-head {
       position: sticky; top: 0; z-index: 40;
       background: linear-gradient(to bottom, #fff 0%, var(--bg) 100%);
@@ -977,6 +980,9 @@ function renderAll() {
 
 if (new URLSearchParams(location.search).get('embed') === '1') {
   document.body.classList.add('embed');
+}
+if (new URLSearchParams(location.search).get('nested') === '1') {
+  document.body.classList.add('nested');
 }
 renderAll();
 </script>

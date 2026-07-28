@@ -42,6 +42,15 @@
       background: var(--card); border: 1px solid var(--border); border-radius: 12px;
       padding: .5rem .55rem; box-shadow: var(--shadow-sm);
     }
+    .benefit-frame {
+      width: 100%;
+      min-height: 78vh;
+      height: min(2200px, 92vh);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      display: block;
+    }
     .tab-btn {
       border: 1px solid var(--border); background: #f8fafc; color: var(--text);
       padding: .48rem .82rem; border-radius: 999px; cursor: pointer;
@@ -322,6 +331,7 @@
       <button type="button" class="tab-btn" data-tab="formulas">5. Витрати й повернення</button>
       <button type="button" class="tab-btn" data-tab="segments">6. Сегменти гостей</button>
       <button type="button" class="tab-btn" data-tab="total">7. Підсумок</button>
+      <button type="button" class="tab-btn" data-tab="benefit">8. Шлях / вигода гостя</button>
     </nav>
   </div>
 </header>
@@ -419,9 +429,10 @@
         <li><strong>Витрати й повернення</strong> — рахунок гостя: перше погашення + СП + T3 vs ББ + маржа + IAP.</li>
         <li><strong>Сегменти гостей</strong> — Автопілот / Casual / Активний / Хардкор; × активність.</li>
         <li><strong>Підсумок</strong> — той самий рахунок на всю когорту.</li>
+        <li><strong>Шлях / вигода гостя</strong> — що гість отримує й що його утримує (не витрати Сільпо).</li>
       </ol>
       <div class="hint">
-        Логіка розділу: винагорода гостя → вартість для Silpo → повернення → сегмент → когорта.
+        Логіка розділу: винагорода гостя → витрати Сільпо → повернення → сегмент → когорта → шлях / вигода.
       </div>
     </section>
     <section>
@@ -523,8 +534,8 @@
             у Хардкору якісно вищий шанс великого призу (не в середніх грн).
         </p>
         <p style="margin:.75rem 0 0">
-          Шлях бенефітів і утримання (не вартість Silpo) —
-          <a href="guest-benefit-guide.html"><strong>Шлях / вигода гостя →</strong></a>
+          Шлях винагород і утримання (не витрати Сільпо) —
+          <a href="#benefit" data-goto-tab="benefit"><strong>8. Шлях / вигода гостя →</strong></a>
         </p>
       </div>
       <div id="segments-overview"></div>
@@ -547,6 +558,22 @@
         <div id="pool-formulas" style="margin-top:.65rem"></div>
       </details>
       <p id="one-liner" class="total-meta" style="margin-top:1rem"></p>
+    </section>
+  </div>
+
+  <div class="panel" id="panel-benefit">
+    <section>
+      <h2>Шлях / вигода гостя</h2>
+      <p class="hint" style="margin-top:0">
+        Що гість отримує від гри й участі — і що його утримує. Окремо від витрат Сільпо вище.
+      </p>
+      <iframe
+        class="benefit-frame"
+        id="benefit-frame"
+        title="Шлях / вигода гостя"
+        src="guest-benefit-guide.html?embed=1&amp;nested=1"
+        loading="lazy"
+      ></iframe>
     </section>
   </div>
 
@@ -606,17 +633,37 @@ function renderFormulaBox(title, eq, inputs, note) {
 }
 
 // Tabs
+function setGuestTab(tabId) {
+  const btn = document.querySelector('.tab-btn[data-tab="' + tabId + '"]');
+  const panel = document.getElementById('panel-' + tabId);
+  if (!btn || !panel) return false;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  panel.classList.add('active');
+  return true;
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    setGuestTab(btn.dataset.tab);
+  });
+});
+
+document.querySelectorAll('[data-goto-tab]').forEach(link => {
+  link.addEventListener('click', (e) => {
+    const tabId = link.getAttribute('data-goto-tab');
+    if (setGuestTab(tabId)) {
+      e.preventDefault();
+      const tabs = document.getElementById('tabs');
+      if (tabs) tabs.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   });
 });
 
 (function initGuestLayout() {
-  const embed = new URLSearchParams(location.search).get('embed') === '1' || window.self !== window.top;
+  const params = new URLSearchParams(location.search);
+  const embed = params.get('embed') === '1' || window.self !== window.top;
   const ctx = document.getElementById('section-ctx');
   if (embed) {
     document.body.classList.add('embed');
@@ -628,6 +675,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     const mauLink = document.getElementById('funnel-mau-link');
     if (mauLink) mauLink.hidden = false;
   }
+  const tabFromQuery = params.get('tab');
+  const tabFromHash = (location.hash || '').replace('#', '');
+  const initialTab = tabFromQuery || tabFromHash;
+  if (initialTab) setGuestTab(initialTab);
 })();
 
 const F = DATA.formulas || {};

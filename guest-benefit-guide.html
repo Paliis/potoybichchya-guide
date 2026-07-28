@@ -656,35 +656,31 @@ function renderHubValue() {
   var oneshot = (row.starter && row.starter.if_used_uah != null)
     ? Number(row.starter.if_used_uah)
     : Number((gvRoot.meta || {}).starter_if_used_uah || 0);
-  var starterM = (row.starter && row.starter.month_equiv_uah != null)
-    ? Number(row.starter.month_equiv_uah)
-    : oneshot / 3;
   var ongoingM = row.ongoing_sp ? Number(row.ongoing_sp.month_uah) : 0;
+  var ongoingS = row.ongoing_sp ? Number(row.ongoing_sp.season_uah) : ongoingM * 3;
   var t3M = row.t3_prizes ? Number(row.t3_prizes.month_uah) : 0;
-  var hubM = row.hub_month_uah != null
-    ? Number(row.hub_month_uah)
-    : (row.total_month_uah != null ? Number(row.total_month_uah) : (starterM + ongoingM + t3M));
+  var t3S = row.t3_prizes ? Number(row.t3_prizes.season_uah) : t3M * 3;
+  var gameM = row.game_month_uah != null ? Number(row.game_month_uah) : (ongoingM + t3M);
   var ceilS = row.ceiling_season_uah != null
     ? Number(row.ceiling_season_uah)
-    : (row.total_season_uah != null ? Number(row.total_season_uah) : hubM * 3);
+    : (row.total_season_uah != null ? Number(row.total_season_uah) : (oneshot + ongoingS + t3S));
   var prize = (row.t3_prizes && row.t3_prizes.big_prize_highlight)
     ? '<div class="uah-prize">шанс великого призу</div>'
     : "";
   el.innerHTML =
-    '<div class="uah-hero">' + fmtUah(hubM) +
-    '<span class="uah-unit">грн/міс</span></div>' +
-    '<div class="uah-season-inline">стеля сезон ' + fmtUah(ceilS) + " грн</div>" +
+    '<div class="uah-hero">' + fmtUah(ceilS) +
+    '<span class="uah-unit">грн/сезон</span></div>' +
+    '<div class="uah-season-inline">з гри ' + fmtUah(gameM) + " грн/міс</div>" +
     '<div class="hub-cascade">' +
-      '<div class="casc-row"><span class="casc-label">Старт СП' +
-        '<span class="casc-sub">' + fmtUah(oneshot) + " грн разово ÷ 3 міс</span></span>" +
-        '<span class="casc-val">' + fmtUah(starterM) +
-        '<span class="casc-unit">/міс</span></span></div>' +
+      '<div class="casc-row"><span class="casc-label">Старт СП</span>' +
+        '<span class="casc-val">' + fmtUah(oneshot) +
+        '<span class="casc-unit">разово</span></span></div>' +
       '<div class="casc-row"><span class="casc-label">Ігрові СП</span>' +
-        '<span class="casc-val">' + fmtUah(ongoingM) +
-        '<span class="casc-unit">/міс</span></span></div>' +
+        '<span class="casc-val">' + fmtUah(ongoingS) +
+        '<span class="casc-unit">/сезон</span></span></div>' +
       '<div class="casc-row"><span class="casc-label">Призи</span>' +
-        '<span class="casc-val">' + fmtUah(t3M) +
-        '<span class="casc-unit">/міс</span></span></div>' +
+        '<span class="casc-val">' + fmtUah(t3S) +
+        '<span class="casc-unit">/сезон</span></span></div>' +
     "</div>" +
     prize;
 }
@@ -745,17 +741,16 @@ function renderGuestValue() {
   function ceilCells() {
     return SEG_ORDER.map(function (id) {
       var r = segs[id];
-      var hubM = r.hub_month_uah != null ? r.hub_month_uah : r.total_month_uah;
-      var starterM = r.starter && r.starter.month_equiv_uah != null
-        ? r.starter.month_equiv_uah
-        : (r.starter ? r.starter.if_used_uah / 3 : 0);
-      var gameM = r.game_month_uah != null ? r.game_month_uah : (hubM - starterM);
+      var oneshot = r.starter.if_used_uah;
+      var gameS = r.game_season_uah != null
+        ? r.game_season_uah
+        : (Number(r.ongoing_sp.season_uah) + Number(r.t3_prizes.season_uah));
       var ceilS = r.ceiling_season_uah != null ? r.ceiling_season_uah : r.total_season_uah;
-      return "<td class='num'>" + fmtUah(hubM) +
-        "<span class='sub'>грн/міс = старт/міс " + fmtUah(starterM) +
-        " + гра " + fmtUah(gameM) + "</span>" +
-        "<span class='sub'>стеля сезон " + fmtUah(ceilS) +
-        " (= старт " + fmtUah(r.starter.if_used_uah) + " + гра сезон)</span></td>";
+      var gameM = r.game_month_uah != null ? r.game_month_uah : gameS / 3;
+      return "<td class='num'>" + fmtUah(ceilS) +
+        "<span class='sub'>грн/сезон = старт " + fmtUah(oneshot) +
+        " + гра " + fmtUah(gameS) + "</span>" +
+        "<span class='sub'>з гри " + fmtUah(gameM) + " грн/міс</span></td>";
     }).join("");
   }
 

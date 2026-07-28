@@ -381,7 +381,7 @@
 
     <section>
       <h2>Стеля вигоди гравця сегмента</h2>
-      <p class="hint">Головне — <strong>максимум для активного гравця</strong>: стартова СП якщо погасив; ігрові СП якщо скористався. У сумі в грн — <em>середнє з призового фонду</em>; <em>великий приз</em> — окремо якісно (сума ще не в моделі). Середнє ≈2,85 грн на всіх, хто обрав культ — це вже витрати Сільпо в <a href="balance-guest-guide.html">економіці гостя</a>.</p>
+      <p class="hint">Головне — <strong>максимум для активного гравця</strong>: стартова СП якщо погасив; ігрові СП якщо скористався. У сумі в грн — <em>середнє з призового фонду</em>; <em>великий приз</em> — окремо якісно (сума ще не в моделі). Середнє ≈2,85 грн на всіх, хто обрав культ — це вже витрати Сільпо в <a href="balance-guest-guide.html" class="link-silpo-guide" data-parent-tab="start">економіці гостя</a>.</p>
       <div style="overflow-x:auto">
         <table class="value-table" id="value-compare-table"></table>
       </div>
@@ -964,7 +964,20 @@ function renderBenefits() {
 
 function renderFooter() {
   document.getElementById('page-footer').innerHTML =
-    `Витрати Сільпо — окремо: <a href="balance-guest-guide.html">економіка гостя</a>.`;
+    `Витрати Сільпо — окремо: <a href="balance-guest-guide.html" class="link-silpo-guide" data-parent-tab="start">економіка гостя</a>.`;
+}
+
+function wireParentTabLinks() {
+  document.querySelectorAll('.link-silpo-guide').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      if (!document.body.classList.contains('nested')) return;
+      e.preventDefault();
+      var tab = a.getAttribute('data-parent-tab') || 'start';
+      try {
+        window.parent.postMessage({ type: 'guest-guide-tab', tab: tab }, '*');
+      } catch (_err) { /* ignore */ }
+    });
+  });
 }
 
 function renderAll() {
@@ -976,6 +989,7 @@ function renderAll() {
   renderCompare();
   renderBenefits();
   renderFooter();
+  wireParentTabLinks();
 }
 
 if (new URLSearchParams(location.search).get('embed') === '1') {

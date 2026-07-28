@@ -661,6 +661,12 @@ document.querySelectorAll('[data-goto-tab]').forEach(link => {
   });
 });
 
+window.addEventListener('message', (ev) => {
+  const data = ev && ev.data;
+  if (!data || data.type !== 'guest-guide-tab') return;
+  if (data.tab) setGuestTab(String(data.tab));
+});
+
 (function initGuestLayout() {
   const params = new URLSearchParams(location.search);
   const embed = params.get('embed') === '1' || window.self !== window.top;

@@ -445,25 +445,26 @@ function findUseSpIndex(loopSteps) {
   return loopSteps.length ? loopSteps.length - 1 : -1;
 }
 
-/** Exit чітко під карткою «Використання СП»; на бічних гранях трохи назовні, щоб не накрити сусіда. */
+/** Exit відгалуження від «Використання СП»: над карткою + трохи назовні (не накривати якір). */
 function exitUnderAnchor(anchor) {
-  var gap = 10.8;
+  var gap = 11.5;
   if (!anchor) return { x: 50, y: 92 };
   if (anchor.side === 0) {
     return { x: anchor.x, y: Math.max(2.5, anchor.y - gap) };
   }
   if (anchor.side === 1) {
     return {
-      x: Math.min(97.5, anchor.x + gap * 0.9),
-      y: Math.min(97.5, anchor.y + gap * 0.55)
+      x: Math.min(97.5, anchor.x + gap * 0.95),
+      y: Math.max(2.5, anchor.y - gap * 0.55)
     };
   }
   if (anchor.side === 2) {
     return { x: anchor.x, y: Math.min(97.5, anchor.y + gap) };
   }
+  /* Ліва грань (S0): вище за «Використання СП» і лівіше назовні. */
   return {
-    x: Math.max(2.5, anchor.x - gap * 0.9),
-    y: Math.min(97.5, anchor.y + gap * 0.55)
+    x: Math.max(2.5, anchor.x - gap * 0.95),
+    y: Math.max(2.5, anchor.y - gap * 0.95)
   };
 }
 

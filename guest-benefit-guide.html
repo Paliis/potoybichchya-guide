@@ -73,9 +73,10 @@
     /* Квадратний периметр: верх → право → низ → ліво */
     .sq-wrap {
       margin: .4rem auto 0;
-      padding: .85rem 1.1rem 1rem;
+      padding: 1.35rem 1.6rem 1.2rem;
       width: min(100%, 1120px);
       box-sizing: border-box;
+      overflow: visible;
     }
     .sq-scene {
       position: relative;
@@ -446,31 +447,26 @@ function findUseSpIndex(loopSteps) {
 }
 
 /** Exit від «Використання СП» — всередину квадрата (до центру), не назовні за край. */
+/** Exit від «Використання СП»: назовні від кільця + вище якоря (не всередину хаба). */
 function exitUnderAnchor(anchor) {
-  var gap = 10;
-  var lo = 18;
-  var hi = 82;
-  if (!anchor) return { x: 50, y: 78 };
-  var x = anchor.x;
-  var y = anchor.y;
+  var gap = 15;
+  if (!anchor) return { x: 8, y: 8 };
   if (anchor.side === 0) {
-    /* верх → вниз до центру */
-    y = Math.min(hi, anchor.y + gap);
-  } else if (anchor.side === 1) {
-    /* права → вліво до центру */
-    x = Math.max(lo, anchor.x - gap);
-    y = Math.min(hi, Math.max(lo, anchor.y - gap * 0.25));
-  } else if (anchor.side === 2) {
-    /* низ → вгору до центру */
-    y = Math.max(lo, anchor.y - gap);
-  } else {
-    /* ліва (S0) → вправо до центру, трохи вище якоря */
-    x = Math.min(hi, anchor.x + gap * 1.05);
-    y = Math.max(lo, anchor.y - gap * 0.35);
+    return { x: anchor.x, y: Math.max(2, anchor.y - gap) };
   }
+  if (anchor.side === 1) {
+    return {
+      x: Math.min(98, anchor.x + gap),
+      y: Math.max(2, anchor.y - gap * 0.7)
+    };
+  }
+  if (anchor.side === 2) {
+    return { x: anchor.x, y: Math.min(98, anchor.y + gap) };
+  }
+  /* Ліва грань: ЛІВІШЕ назовні і ВИЩЕ — щоб не накривати «Використання СП» і стрілку. */
   return {
-    x: Math.max(lo, Math.min(hi, x)),
-    y: Math.max(lo, Math.min(hi, y))
+    x: Math.max(2, anchor.x - gap),
+    y: Math.max(2, anchor.y - gap)
   };
 }
 

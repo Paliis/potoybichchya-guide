@@ -140,15 +140,18 @@
       font-size: .78rem; line-height: 1.3;
     }
     .sq-hub .hub-cascade .casc-label { color: var(--muted); font-weight: 600; }
-    .sq-hub .hub-cascade .casc-sub {
-      display: block; font-size: .58rem; font-weight: 500; color: #94a3b8; margin-top: .04rem;
-    }
     .sq-hub .hub-cascade .casc-val {
       color: var(--accent-dark); font-weight: 750;
       font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap;
     }
     .sq-hub .hub-cascade .casc-val .casc-unit {
       font-weight: 600; color: var(--muted); font-size: .66rem; margin-left: .1rem;
+    }
+    .sq-hub .hub-cascade .casc-slash {
+      font-weight: 650; color: #94a3b8; margin: 0 .18rem; font-size: .9em;
+    }
+    .sq-hub .hub-cascade .casc-season {
+      font-weight: 700; color: #64748b; font-size: .92em;
     }
     .sq-hub .hub-value .uah-prize {
       display: inline-block; margin-top: .26rem;
@@ -687,39 +690,45 @@ function renderHubValue() {
   if (!el) return;
   var gvRoot = DATA.guest_value || {};
   var gv = gvRoot.segments || {};
+  var meta = gvRoot.meta || {};
+  var months = Number(meta.season_months) || 3;
   var row = gv[activeSeg];
   if (!row) {
     el.innerHTML = "";
     return;
   }
+  /* Старт СП 28,50 разово входить і в місячну, і в сезонну суму (разова активація). */
   var oneshot = (row.starter && row.starter.if_used_uah != null)
     ? Number(row.starter.if_used_uah)
-    : Number((gvRoot.meta || {}).starter_if_used_uah || 0);
+    : Number(meta.starter_if_used_uah || 0);
   var ongoingM = row.ongoing_sp ? Number(row.ongoing_sp.month_uah) : 0;
-  var ongoingS = row.ongoing_sp ? Number(row.ongoing_sp.season_uah) : ongoingM * 3;
+  var ongoingS = row.ongoing_sp ? Number(row.ongoing_sp.season_uah) : ongoingM * months;
   var t3M = row.t3_prizes ? Number(row.t3_prizes.month_uah) : 0;
-  var t3S = row.t3_prizes ? Number(row.t3_prizes.season_uah) : t3M * 3;
-  var gameM = row.game_month_uah != null ? Number(row.game_month_uah) : (ongoingM + t3M);
-  var ceilS = row.ceiling_season_uah != null
-    ? Number(row.ceiling_season_uah)
-    : (row.total_season_uah != null ? Number(row.total_season_uah) : (oneshot + ongoingS + t3S));
+  var t3S = row.t3_prizes ? Number(row.t3_prizes.season_uah) : t3M * months;
+  var monthTotal = oneshot + ongoingM + t3M;
+  var seasonTotal = oneshot + ongoingS + t3S;
   var prize = (row.t3_prizes && row.t3_prizes.big_prize_highlight)
     ? '<div class="uah-prize">шанс великого призу</div>'
     : "";
+  function msPair(month, season) {
+    return fmtUah(month) +
+      '<span class="casc-unit">/міс</span>' +
+      '<span class="casc-slash">\\</span>' +
+      '<span class="casc-season">' + fmtUah(season) + "</span>" +
+      '<span class="casc-unit">/сезон</span>';
+  }
   el.innerHTML =
-    '<div class="uah-hero">' + fmtUah(ceilS) +
-    '<span class="uah-unit">грн/сезон</span></div>' +
-    '<div class="uah-season-inline">з гри ' + fmtUah(gameM) + " грн/міс</div>" +
+    '<div class="uah-hero">' + fmtUah(monthTotal) +
+    '<span class="uah-unit">грн/міс</span></div>' +
+    '<div class="uah-season-inline">сезон ' + fmtUah(seasonTotal) + " грн</div>" +
     '<div class="hub-cascade">' +
-      '<div class="casc-row"><span class="casc-label">Старт СП</span>' +
+      '<div class="casc-row"><span class="casc-label">Стартова</span>' +
         '<span class="casc-val">' + fmtUah(oneshot) +
         '<span class="casc-unit">разово</span></span></div>' +
       '<div class="casc-row"><span class="casc-label">Ігрові СП</span>' +
-        '<span class="casc-val">' + fmtUah(ongoingS) +
-        '<span class="casc-unit">/сезон</span></span></div>' +
+        '<span class="casc-val">' + msPair(ongoingM, ongoingS) + "</span></div>" +
       '<div class="casc-row"><span class="casc-label">Призи</span>' +
-        '<span class="casc-val">' + fmtUah(t3S) +
-        '<span class="casc-unit">/сезон</span></span></div>' +
+        '<span class="casc-val">' + msPair(t3M, t3S) + "</span></div>" +
     "</div>" +
     prize;
 }
@@ -778,18 +787,19 @@ function renderGuestValue() {
   }
 
   function ceilCells() {
+    var months = Number((meta || {}).season_months) || 3;
     return SEG_ORDER.map(function (id) {
       var r = segs[id];
-      var oneshot = r.starter.if_used_uah;
-      var gameS = r.game_season_uah != null
-        ? r.game_season_uah
-        : (Number(r.ongoing_sp.season_uah) + Number(r.t3_prizes.season_uah));
-      var ceilS = r.ceiling_season_uah != null ? r.ceiling_season_uah : r.total_season_uah;
-      var gameM = r.game_month_uah != null ? r.game_month_uah : gameS / 3;
-      return "<td class='num'>" + fmtUah(ceilS) +
-        "<span class='sub'>грн/сезон = старт " + fmtUah(oneshot) +
-        " + гра " + fmtUah(gameS) + "</span>" +
-        "<span class='sub'>з гри " + fmtUah(gameM) + " грн/міс</span></td>";
+      var oneshot = Number(r.starter.if_used_uah);
+      var ongM = Number(r.ongoing_sp.month_uah);
+      var ongS = Number(r.ongoing_sp.season_uah);
+      var t3M = Number(r.t3_prizes.month_uah);
+      var t3S = Number(r.t3_prizes.season_uah);
+      var monthTotal = oneshot + ongM + t3M;
+      var seasonTotal = oneshot + ongS + t3S;
+      return "<td class='num'>" + fmtUah(monthTotal) +
+        "<span class='sub'>грн/міс (= старт " + fmtUah(oneshot) + " + гра)</span>" +
+        "<span class='sub'>сезон " + fmtUah(seasonTotal) + " грн</span></td>";
     }).join("");
   }
 

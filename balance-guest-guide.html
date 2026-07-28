@@ -44,13 +44,14 @@
     }
     .benefit-frame {
       width: 100%;
-      min-height: 78vh;
-      height: min(2200px, 92vh);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #fff;
+      border: 0;
+      background: transparent;
       display: block;
+      min-height: 480px;
+      height: 900px; /* оновлюється postMessage з nested-сторінки */
     }
+    #panel-benefit.panel { padding-top: .35rem; }
+    #panel-benefit.panel.active { display: block; }
     .tab-btn {
       border: 1px solid var(--border); background: #f8fafc; color: var(--text);
       padding: .48rem .82rem; border-radius: 999px; cursor: pointer;
@@ -562,19 +563,13 @@
   </div>
 
   <div class="panel" id="panel-benefit">
-    <section>
-      <h2>Шлях / вигода гостя</h2>
-      <p class="hint" style="margin-top:0">
-        Що гість отримує від гри й участі — і що його утримує. Окремо від витрат Сільпо вище.
-      </p>
-      <iframe
-        class="benefit-frame"
-        id="benefit-frame"
-        title="Шлях / вигода гостя"
-        src="guest-benefit-guide.html?embed=1&amp;nested=1"
-        loading="lazy"
-      ></iframe>
-    </section>
+    <iframe
+      class="benefit-frame"
+      id="benefit-frame"
+      title="Шлях / вигода гостя"
+      src="guest-benefit-guide.html?embed=1&amp;nested=1"
+      loading="lazy"
+    ></iframe>
   </div>
 
   <p class="footer" id="footer-meta"></p>
@@ -663,8 +658,15 @@ document.querySelectorAll('[data-goto-tab]').forEach(link => {
 
 window.addEventListener('message', (ev) => {
   const data = ev && ev.data;
-  if (!data || data.type !== 'guest-guide-tab') return;
-  if (data.tab) setGuestTab(String(data.tab));
+  if (!data) return;
+  if (data.type === 'guest-guide-tab' && data.tab) {
+    setGuestTab(String(data.tab));
+    return;
+  }
+  if (data.type === 'guest-benefit-height' && data.height) {
+    const frame = document.getElementById('benefit-frame');
+    if (frame) frame.style.height = Math.ceil(Number(data.height)) + 'px';
+  }
 });
 
 (function initGuestLayout() {

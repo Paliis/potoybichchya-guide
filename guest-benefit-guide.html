@@ -26,7 +26,19 @@
     body.embed .page-head .wrap { max-width: 1180px; margin-left: auto; margin-right: auto; }
     body.nested .page-head { display: none; }
     body.nested .footer { display: none; }
-    body.nested .wrap { padding-top: .35rem; }
+    body.nested {
+      background: transparent;
+      min-height: 0;
+      overflow: visible;
+    }
+    body.nested .wrap {
+      max-width: none;
+      margin: 0;
+      padding: 0 0 .5rem;
+    }
+    body.nested .seg-tabs {
+      margin: 0 0 .75rem;
+    }
     .page-head {
       position: sticky; top: 0; z-index: 40;
       background: linear-gradient(to bottom, #fff 0%, var(--bg) 100%);
@@ -980,6 +992,17 @@ function wireParentTabLinks() {
   });
 }
 
+function postNestedHeight() {
+  if (!document.body.classList.contains('nested')) return;
+  try {
+    var h = Math.max(
+      document.body.scrollHeight || 0,
+      document.documentElement.scrollHeight || 0
+    );
+    window.parent.postMessage({ type: 'guest-benefit-height', height: h + 8 }, '*');
+  } catch (_err) { /* ignore */ }
+}
+
 function renderAll() {
   if (!DATA.segments) return;
   renderTabs();
@@ -990,6 +1013,10 @@ function renderAll() {
   renderBenefits();
   renderFooter();
   wireParentTabLinks();
+  requestAnimationFrame(function () {
+    postNestedHeight();
+    requestAnimationFrame(postNestedHeight);
+  });
 }
 
 if (new URLSearchParams(location.search).get('embed') === '1') {
@@ -997,6 +1024,11 @@ if (new URLSearchParams(location.search).get('embed') === '1') {
 }
 if (new URLSearchParams(location.search).get('nested') === '1') {
   document.body.classList.add('nested');
+  window.addEventListener('load', postNestedHeight);
+  window.addEventListener('resize', postNestedHeight);
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(postNestedHeight).observe(document.body);
+  }
 }
 renderAll();
 </script>

@@ -207,7 +207,11 @@
     .sq-step.kind-action { border-left-color: #2563eb; }
     .sq-step.kind-reward { border-left-color: #16a34a; }
     .sq-step.kind-benefit { border-left-color: #d97706; }
-    .sq-step.kind-exit { border-left-color: #dc2626; }
+    .sq-step.kind-exit {
+      border-left-color: #dc2626;
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
     .sq-step .stage-num {
       font-size: .58rem; font-weight: 800; color: #94a3b8;
       letter-spacing: .03em;
@@ -421,6 +425,14 @@ function squareInset(n) {
   return 16;
 }
 
+function exitBranchPos(lastPos) {
+  var d = 7.2;
+  if (lastPos.side === 0) return { x: lastPos.x, y: Math.max(3.2, lastPos.y - d) };
+  if (lastPos.side === 1) return { x: Math.min(96.8, lastPos.x + d), y: lastPos.y };
+  if (lastPos.side === 2) return { x: lastPos.x, y: Math.min(96.8, lastPos.y + d) };
+  return { x: Math.max(3.2, lastPos.x - d), y: lastPos.y };
+}
+
 function squarePositions(n, inset) {
   if (inset == null) inset = squareInset(n);
   var base = Math.floor(n / 4);
@@ -527,6 +539,9 @@ function linkDefsPx() {
     '<marker id="sqArrLoop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">' +
     '<path d="M2 1.5 L8.5 5 L2 8.5" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
     "</marker>" +
+    '<marker id="sqArrExit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">' +
+    '<path d="M2 1.5 L8.5 5 L2 8.5" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    "</marker>" +
     "</defs>";
 }
 
@@ -534,7 +549,8 @@ function drawSquareLinks(closesLoop, sides, inset) {
   var scene = document.getElementById("sq-scene");
   var svg = document.getElementById("sq-links");
   if (!scene || !svg) return;
-  var cards = scene.querySelectorAll("#sq-nodes .sq-step");
+  var loopCards = scene.querySelectorAll("#sq-nodes .sq-step:not(.kind-exit)");
+  var exitCard = scene.querySelector("#sq-nodes .sq-step.kind-exit");
   var sceneRect = scene.getBoundingClientRect();
   var w = sceneRect.width;
   var h = sceneRect.height;
@@ -542,14 +558,14 @@ function drawSquareLinks(closesLoop, sides, inset) {
   svg.setAttribute("viewBox", "0 0 " + w + " " + h);
   svg.setAttribute("width", String(w));
   svg.setAttribute("height", String(h));
-  if (cards.length < 2) {
-    svg.innerHTML = linkDefsPx();
+  var html = linkDefsPx();
+  if (loopCards.length < 2 && !exitCard) {
+    svg.innerHTML = html;
     return;
   }
   var boxes = [];
-  for (var i = 0; i < cards.length; i++) boxes.push(cardBoxPx(cards[i], sceneRect));
+  for (var i = 0; i < loopCards.length; i++) boxes.push(cardBoxPx(loopCards[i], sceneRect));
   var insetPx = (inset / 100) * Math.min(w, h);
-  var html = linkDefsPx();
   function add(iFrom, iTo, loop) {
     var d = linkPathPx(boxes[iFrom], sides[iFrom], boxes[iTo], sides[iTo], insetPx, w, h);
     var col = loop ? "#64748b" : "#94a3b8";
@@ -559,7 +575,17 @@ function drawSquareLinks(closesLoop, sides, inset) {
       'stroke-linecap="round" stroke-linejoin="round" marker-end="' + mk + '"' + dash + "/>";
   }
   for (var j = 0; j < boxes.length - 1; j++) add(j, j + 1, false);
-  if (closesLoop) add(boxes.length - 1, 0, true);
+  if (closesLoop && boxes.length > 1) add(boxes.length - 1, 0, true);
+  if (exitCard && boxes.length) {
+    var from = boxes[boxes.length - 1];
+    var to = cardBoxPx(exitCard, sceneRect);
+    var a = faceToward(from, to.cx, to.cy);
+    var b = faceToward(to, from.cx, from.cy);
+    html += '<path d="M ' + a.x.toFixed(1) + " " + a.y.toFixed(1) +
+      " L " + b.x.toFixed(1) + " " + b.y.toFixed(1) +
+      '" fill="none" stroke="#dc2626" stroke-width="1.35" stroke-linecap="round" ' +
+      'stroke-dasharray="5 3.5" marker-end="url(#sqArrExit)"/>';
+  }
   svg.innerHTML = html;
 }
 
@@ -605,6 +631,10 @@ function renderFlow() {
   for (var i = 0; i < loopSteps.length; i++) {
     html.push(stepCardHtml(loopSteps[i], i + 1, false, positions[i]));
   }
+  if (exitSteps.length && positions.length) {
+    var exPos = exitBranchPos(positions[positions.length - 1]);
+    html.push(stepCardHtml(exitSteps[0], "exit", true, exPos));
+  }
   document.getElementById("sq-nodes").innerHTML = html.join("");
   document.getElementById("sq-links").innerHTML = linkDefsPx();
 
@@ -616,9 +646,6 @@ function renderFlow() {
       "<span>Остання → перша: новий сезон (замкнений луп)</span>" +
       "</div>"
     );
-  }
-  for (var e = 0; e < exitSteps.length; e++) {
-    endHtml.push(stepCardHtml(exitSteps[e], "exit", true, null));
   }
   document.getElementById("sq-end").innerHTML = endHtml.join("");
 

@@ -84,7 +84,7 @@
       background: #f7f8fb;
       border: 1px solid #e5eaf1;
       border-radius: 12px;
-      overflow: visible;
+      overflow: hidden;
     }
     .sq-scene::before {
       content: "";
@@ -445,26 +445,32 @@ function findUseSpIndex(loopSteps) {
   return loopSteps.length ? loopSteps.length - 1 : -1;
 }
 
-/** Exit відгалуження від «Використання СП»: над карткою + трохи назовні (не накривати якір). */
+/** Exit від «Використання СП» — всередину квадрата (до центру), не назовні за край. */
 function exitUnderAnchor(anchor) {
-  var gap = 11.5;
-  if (!anchor) return { x: 50, y: 92 };
+  var gap = 10;
+  var lo = 18;
+  var hi = 82;
+  if (!anchor) return { x: 50, y: 78 };
+  var x = anchor.x;
+  var y = anchor.y;
   if (anchor.side === 0) {
-    return { x: anchor.x, y: Math.max(2.5, anchor.y - gap) };
+    /* верх → вниз до центру */
+    y = Math.min(hi, anchor.y + gap);
+  } else if (anchor.side === 1) {
+    /* права → вліво до центру */
+    x = Math.max(lo, anchor.x - gap);
+    y = Math.min(hi, Math.max(lo, anchor.y - gap * 0.25));
+  } else if (anchor.side === 2) {
+    /* низ → вгору до центру */
+    y = Math.max(lo, anchor.y - gap);
+  } else {
+    /* ліва (S0) → вправо до центру, трохи вище якоря */
+    x = Math.min(hi, anchor.x + gap * 1.05);
+    y = Math.max(lo, anchor.y - gap * 0.35);
   }
-  if (anchor.side === 1) {
-    return {
-      x: Math.min(97.5, anchor.x + gap * 0.95),
-      y: Math.max(2.5, anchor.y - gap * 0.55)
-    };
-  }
-  if (anchor.side === 2) {
-    return { x: anchor.x, y: Math.min(97.5, anchor.y + gap) };
-  }
-  /* Ліва грань (S0): вище за «Використання СП» і лівіше назовні. */
   return {
-    x: Math.max(2.5, anchor.x - gap * 0.95),
-    y: Math.max(2.5, anchor.y - gap * 0.95)
+    x: Math.max(lo, Math.min(hi, x)),
+    y: Math.max(lo, Math.min(hi, y))
   };
 }
 

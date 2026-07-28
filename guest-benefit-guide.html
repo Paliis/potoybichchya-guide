@@ -924,11 +924,11 @@ function renderGuestValue() {
   }
   chips.push(
     "<div class='value-chip'><strong>Стеля сегмента</strong>" +
-    "<div>~" + fmtUah(row.hub_month_uah != null ? row.hub_month_uah : row.total_month_uah) +
+    "<div>" + fmtUah(row.hub_month_uah != null ? row.hub_month_uah : row.total_month_uah) +
     " грн/міс</div>" +
-    "<div class='muted'>сезон ~" +
+    "<div class='muted'>сезон " +
     fmtUah(row.ceiling_season_uah != null ? row.ceiling_season_uah : row.total_season_uah) +
-    " грн · старт÷3 + ігрові + T3 середнє</div></div>"
+    " грн · старт 28,50 разово + ігрові + T3</div></div>"
   );
   breakdown.innerHTML = chips.join("");
 }

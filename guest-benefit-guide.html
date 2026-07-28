@@ -447,26 +447,31 @@ function findUseSpIndex(loopSteps) {
 }
 
 /** Exit від «Використання СП» — всередину квадрата (до центру), не назовні за край. */
-/** Exit від «Використання СП»: назовні від кільця + вище якоря (не всередину хаба). */
+/** Exit всередині кільця біля «Використання СП»: між периметром і хабом, без наїзду. */
 function exitUnderAnchor(anchor) {
-  var gap = 15;
-  if (!anchor) return { x: 8, y: 8 };
+  /* Зазор ≈ ширина картки + повітря, щоб стрілка читалась. */
+  var gap = 13.5;
+  if (!anchor) return { x: 32, y: 42 };
   if (anchor.side === 0) {
-    return { x: anchor.x, y: Math.max(2, anchor.y - gap) };
+    /* верх → трохи вниз до центру */
+    return { x: anchor.x, y: Math.min(42, anchor.y + gap) };
   }
   if (anchor.side === 1) {
+    /* права → вліво до центру */
     return {
-      x: Math.min(98, anchor.x + gap),
-      y: Math.max(2, anchor.y - gap * 0.7)
+      x: Math.max(58, anchor.x - gap),
+      y: anchor.y
     };
   }
   if (anchor.side === 2) {
-    return { x: anchor.x, y: Math.min(98, anchor.y + gap) };
+    /* низ → вгору до центру */
+    return { x: anchor.x, y: Math.max(58, anchor.y - gap) };
   }
-  /* Ліва грань: ЛІВІШЕ назовні і ВИЩЕ — щоб не накривати «Використання СП» і стрілку. */
+  /* Ліва грань: ВСЕРЕДИНУ кільця (праворуч від якоря), на тій же висоті.
+     Трохи нижче якоря — щоб не перекрити стрілку 7→8 над/крізь картку. */
   return {
-    x: Math.max(2, anchor.x - gap),
-    y: Math.max(2, anchor.y - gap)
+    x: Math.min(38, anchor.x + gap),
+    y: Math.min(48, anchor.y + 3.5)
   };
 }
 
